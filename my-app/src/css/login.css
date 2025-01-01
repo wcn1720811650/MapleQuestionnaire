@@ -1,0 +1,152 @@
+body, html {
+    margin: 0;
+    padding: 0;
+    font-family: "Open Sans", "Microsoft YaHei", sans-serif;
+    background-color: #F3F8F3; 
+    color: #333;
+    height: 100%;
+    width: 100%;
+  }
+  
+  .login-page {
+    display: flex;
+    flex-direction: row;
+    height: 100vh;
+  }
+  
+ 
+  .login-page__illustration {
+    flex: 1.5;
+    background: #EAF9EA; 
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  .illustration-content {
+    max-width: 80%;
+    text-align: center;
+  }
+  
+  .illustration-content h1 {
+    font-size: 2.2rem;
+    color: #4B9B4B; 
+    margin-bottom: 1rem;
+  }
+  
+  .illustration-content p {
+    font-size: 1rem;
+    color: #666;
+  }
+  
+  .login-page__form {
+    flex: 1;
+    background: #FFFFFF;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    box-shadow: -10px 0 20px rgba(0, 0, 0, 0.05);
+  }
+  
+  form {
+    width: 80%;
+    max-width: 400px;
+    margin: 0 auto;
+  }
+  
+  h2 {
+    text-align: center;
+    color: #4B9B4B;
+    margin-bottom: 2rem;
+  }
+  
+  .form-group {
+    margin-bottom: 1rem;
+  }
+  
+  label {
+    display: block;
+    margin-bottom: 0.5rem;
+    color: #333;
+  }
+  
+  input[type="email"],
+  input[type="password"] {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid #CED4CE;
+    border-radius: 4px;
+    outline: none;
+    font-size: 1rem;
+  }
+  
+  input:focus {
+    border-color: #4B9B4B;
+  }
+  
+  /* 登录按钮 */
+  .login-btn {
+    width: 100%;
+    background-color: #6BA17C; 
+    color: #FFFFFF;
+    padding: 0.8rem;
+    font-size: 1rem;
+    border: none;
+    border-radius: 4px;
+    margin: 1rem 0;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  
+  .login-btn:hover {
+    background-color: #578B68; 
+  }
+  
+  .options {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+    font-size: 0.9rem;
+  }
+  
+  .options a {
+    color: #4B9B4B;
+    text-decoration: none;
+  }
+  
+  .options a:hover {
+    text-decoration: underline;
+  }
+  
+  .join {
+    text-align: center;
+    font-size: 0.9rem;
+  }
+  
+  .join a {
+    color: #4B9B4B;
+    text-decoration: none;
+  }
+  
+  .join a:hover {
+    text-decoration: underline;
+  }
+  
+  @media (max-width: 768px) {
+    .login-page {
+      flex-direction: column;
+    }
+    
+    .login-page__illustration,
+    .login-page__form {
+      flex: none;
+      width: 100%;
+      box-shadow: none;
+    }
+    
+    .illustration-content {
+      max-width: 90%;
+    }
+  }
+  
