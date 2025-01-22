@@ -7,6 +7,8 @@ import Home from "./pages/home";
 import Login from "./pages/login";
 import Register from "./pages/register"
 import ForgotPasswordPage from "./pages/forgotPasswordPage";
+import Questionnaire from "./pages/questionnaire"
+
 const App = () => {
   return (
     <ThemeProvider theme={theme}>
@@ -16,6 +18,7 @@ const App = () => {
           <Route path="/login" element={<Login/>} />
           <Route path="/register" element={<Register/>} />
           <Route path="/forgetpassword" element={<ForgotPasswordPage/>} />
+          <Route path="/questionnaire" element={<Questionnaire/>} />
 
           <Route path="*" element={ <Navigate to="/" /> } />
         </Routes>
