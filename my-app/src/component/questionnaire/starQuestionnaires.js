@@ -1,10 +1,10 @@
 import React from 'react';
 
-const Questionnaires = () => {
+const StarQuestionnaires = () => {
     
     return (
         <p>stars</p>
     )
 }
 
-export default Questionnaires;
+export default StarQuestionnaires;

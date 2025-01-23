@@ -27,6 +27,7 @@ function HomePage() {
             <img 
                 src={Logo}
                 style={{ width: '100%', maxWidth: 50 }}
+                alt='logo'
             >
             </img>
             <div>
@@ -75,6 +76,7 @@ function HomePage() {
           <img 
             src={Logo}
             style={{ width: '100%', maxWidth: 300 }}
+            alt='logo'
           >
           </img>
         </Box>

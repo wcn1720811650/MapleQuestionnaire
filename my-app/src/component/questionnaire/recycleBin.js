@@ -1,10 +1,10 @@
 import React from 'react';
 
-const Questionnaires = () => {
+const RecycleBin = () => {
     
     return (
         <p>Bin</p>
     )
 }
 
-export default Questionnaires;
+export default RecycleBin;

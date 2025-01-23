@@ -20,6 +20,7 @@ const App = () => {
           <Route path="/forgetpassword" element={<ForgotPasswordPage/>} />
           <Route path="/questionnaire" element={<Questionnaire/>} />
 
+
           <Route path="*" element={ <Navigate to="/" /> } />
         </Routes>
       </BrowserRouter>
