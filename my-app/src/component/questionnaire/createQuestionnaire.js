@@ -89,14 +89,22 @@ export default function CreateQuestionnaire({ router }) {
 
   // submit the whole questionnaire to localStorage
   function handleSubmitQuestionnaire() {
-    // 构造问卷对象
+    if (!title.trim()) {
+      alert('title cannot be empty')
+      return
+    }
+    if (questions.length === 0) {
+      alert('you must add questions')
+      return
+    }
     const newQ = {
       id: Date.now(), 
-      title: title || 'Untitled Questionnaire',
+      title: title.trim(),
       questions,
     };
-
+    
     const storedStr = localStorage.getItem('myQuestionnaires');
+    
     let arr = storedStr ? JSON.parse(storedStr) : [];
     arr.push(newQ);
     localStorage.setItem('myQuestionnaires', JSON.stringify(arr));
