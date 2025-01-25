@@ -7,7 +7,7 @@ import Home from "./pages/home";
 import Login from "./pages/login";
 import Register from "./pages/register"
 import ForgotPasswordPage from "./pages/forgotPasswordPage";
-import Questionnaire from "./pages/questionnaire"
+import Manage from "./pages/manage"
 
 const App = () => {
   return (
@@ -18,7 +18,7 @@ const App = () => {
           <Route path="/login" element={<Login/>} />
           <Route path="/register" element={<Register/>} />
           <Route path="/forgetpassword" element={<ForgotPasswordPage/>} />
-          <Route path="/questionnaire" element={<Questionnaire/>} />
+          <Route path="/questionnaire" element={<Manage/>} />
 
 
           <Route path="*" element={ <Navigate to="/" /> } />

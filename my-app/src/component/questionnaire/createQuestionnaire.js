@@ -154,7 +154,6 @@ export default function CreateQuestionnaire({ router }) {
             <Typography variant="body1" sx={{ mb: 2 }}>
               Q: {q.text || '(No question text)'}
             </Typography>
-
             {q.type === 'singleChoice' && <SingleChoiceRender question={q} />}
             {q.type === 'multipleChoice' && <MultipleChoiceRender question={q} />}
             {q.type === 'text' && <TextRender question={q} />}
