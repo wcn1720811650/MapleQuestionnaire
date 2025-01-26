@@ -1,6 +1,7 @@
 // src/controllers/questionnaireController.js
+const e = require('express');
 const { questionnaires } = require('../data/inMemoryData');
-
+const { v4: uuidv4} = require('uuid')
 /**
  * get all questionnaires
  * @param {*} req 
@@ -15,12 +16,24 @@ function getAllQuestionnaires(req, res) {
 
 function createQuestionnaire(req, res) {
   const { title, questions } = req.body;
-  if (!title || !questions) {
-    return res.status(400).json({ error: 'title and questions are required' });
+  if (!title || typeof title!=='string' || title.trim() === '') {
+    return res.status(400).json({ error: 'title is required and must be a non-empty string' });
+  }
+  if (!Array.isArray(questions) || questions.length === 0) {
+    return res.status(400).json({ error: 'questions is required and must be a non-empty array'})
+  }
+
+  for (const question of questions) {
+    if (!question.question || typeof question.question !== 'string' || question.question.trim() === '') {
+      return res.status(400).json({ error: 'Each question must have a non-empty "question" field' });
+    }
+    if (!question.type || typeof question.type !== 'string') {
+      return res.status(400).json({ error: 'Each question must have a "type" field' });
+    }
   }
 
   const newQ = {
-    id: Date.now(),
+    id: uuidv4(),
     title,
     questions,
     isStarred: false,
@@ -36,7 +49,9 @@ function getQuestionnaireById(req, res) {
   const { id } = req.params;
   const found = questionnaires.find(q => String(q.id) === id);
   if (!found) {
-    return res.status(404).json({ error: 'Questionnaire not found' });
+    const error = new Error('Questionnaire not found');
+    error.status = 404;
+    throw error;
   }
   return res.json(found);
 }
