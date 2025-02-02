@@ -36,7 +36,6 @@ function HomePage() {
           </Typography>
           <Box>
             <Button sx={{ mr: 2 }} href='/login' color="inherit">Sign In</Button>
-            <Button variant="contained" href='/register' color="primary">Sign Up</Button>
           </Box>
         </Toolbar>
       </AppBar>
