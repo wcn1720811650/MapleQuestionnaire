@@ -14,6 +14,7 @@ import Popover from '@mui/material/Popover';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import Button from '@mui/material/Button';
+import { Modal } from '@mui/material';
 import { AppProvider } from '@toolpad/core/AppProvider';
 import { DashboardLayout } from '@toolpad/core/DashboardLayout';
 import { PageContainer } from '@toolpad/core/PageContainer';
@@ -144,8 +145,9 @@ const fetchUserInfo = async () => {
 
 function CustomAppTitle() {
   const [anchorEl, setAnchorEl] = React.useState(null);
-  const [userInfo, setUserInfo] = useState({ email: 'Loading...', role: 'Normal User' }); 
+  const [userInfo, setUserInfo] = useState({ email: 'Loading...', role: 'Normal User', name: '', avatar: '', phoneNumber: '' }); 
   const [isLoading, setIsLoading] = useState(true);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
     fetchUserInfo().then((data) => {
@@ -180,6 +182,15 @@ function CustomAppTitle() {
       console.error('Error during logout:', error);
     }
   };
+
+  const handleOpenModal = () => {
+    setIsModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+  };
+
   if (isLoading) {
     return <div>Loading...</div>; 
   }
@@ -232,6 +243,7 @@ function CustomAppTitle() {
                 <Button
                   fullWidth
                   sx={{ justifyContent: 'flex-start', color: 'text.primary' }}
+                  onClick={handleOpenModal}
                 >
                   Information
                 </Button>
@@ -245,6 +257,45 @@ function CustomAppTitle() {
               </Box>
             </Box>
           </Popover>
+          <Modal
+            open={isModalOpen} 
+            onClose={handleCloseModal} 
+            aria-labelledby="user-info-modal"
+            aria-describedby="user-info-modal-description"
+          >
+            <Box
+              sx={{
+                position: 'absolute',
+                top: '50%',
+                left: '50%',
+                transform: 'translate(-50%, -50%)',
+                width: 400,
+                bgcolor: 'background.paper',
+                boxShadow: 24,
+                p: 4,
+                borderRadius: '8px',
+              }}
+            >
+              <Typography variant="h6" id="user-info-modal" sx={{ mb: 2 }}>
+                User Information
+              </Typography>
+              <Typography variant="body1" id="user-info-modal-description">
+                <strong>Email:</strong> {userInfo.email}
+              </Typography>
+              <Typography variant="body1">
+                <strong>Name:</strong> {userInfo.name}
+              </Typography>
+              <Typography variant="body1">
+                <strong>Role:</strong> {userInfo.role}
+              </Typography>
+              <Typography variant="body1">
+              <strong>Phone:</strong> {userInfo.phoneNumber || 'N/A'}
+              </Typography>
+              <Box sx={{ mt: 2, display: 'flex', justifyContent: 'flex-end' }}>
+                <Button onClick={handleCloseModal}>Close</Button>
+              </Box>
+            </Box>
+          </Modal>
         </div>
       </div>
     </div>

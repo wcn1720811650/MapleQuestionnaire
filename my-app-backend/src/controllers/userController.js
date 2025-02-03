@@ -13,7 +13,8 @@ module.exports = {
         id: user.id,
         email: user.email,
         name: user.name,
-        avatar: user.avatar
+        avatar: user.avatar,
+        phoneNumber: user.phoneNumber
       });
     } catch (error) {
       console.error('Error:', error);

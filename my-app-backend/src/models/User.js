@@ -1,30 +1,48 @@
-const users = []; 
+// models/User.js
+const { DataTypes } = require('sequelize');
+const sequelize = require('../config/database');
 
-class User {
-  constructor({ googleId, name, email, avatar }) {
-    this.id = Date.now().toString();
-    this.googleId = googleId;
-    this.name = name;
-    this.email = email;
-    this.avatar = avatar;
+const User = sequelize.define('User', {
+  id: {
+    type: DataTypes.INTEGER,
+    primaryKey: true,
+    autoIncrement: true
+  },
+  googleId: {
+    type: DataTypes.STRING,
+    unique: true
+  },
+  name: DataTypes.STRING,
+  email: {
+    type: DataTypes.STRING,
+    unique: true,
+    allowNull: false
+  },
+  avatar: DataTypes.STRING,
+  phoneNumber: DataTypes.STRING,
+  role: {
+    type: DataTypes.STRING,
+    defaultValue: 'user'
   }
-
-  static findByGoogleId(googleId) {
-    return users.find(user => user.googleId === googleId);
-    
+}, {
+  timestamps: true, 
+  hooks: {
+    beforeCreate: (user) => {
+      console.log('Creating user:', user.email);
+    }
   }
+});
 
-  static findById(id) {
-    return users.find(user => user.id === id);
-  }
+User.findByGoogleId = async (googleId) => {
+  return await User.findOne({ where: { googleId } });
+};
 
-  save() {
-    users.push(this);
-    console.log('Saved user:', this);
-    return this;
-  }
-}
-console.log('Users:', users);
+User.findById = async (id) => {
+  return await User.findByPk(id);
+};
 
+User.prototype.save = async function() {
+  return this.save();
+};
 
 module.exports = User;

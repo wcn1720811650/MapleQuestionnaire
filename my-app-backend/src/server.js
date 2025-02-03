@@ -7,9 +7,24 @@ const passport = require('./config/passport');
 const questionnaireRouter = require('./routes/questionnaireRouter');
 const authRoutes = require('./routes/authRoutes'); 
 const userRoutes = require('./routes/userRoutes')
+const sequelize = require('./config/database');
 
 const app = express();
 const port = 3001;
+
+const initializeDatabase = async () => {
+  try {
+    await sequelize.authenticate();
+    console.log('Database connection established');
+
+    await sequelize.sync({ alter: true }); 
+    console.log('Database schema synchronized');
+
+  } catch (error) {
+    console.error('Database initialization failed:', error);
+    process.exit(1); 
+  }
+};
 
 app.use(express.json());
 app.use(cors());
@@ -35,6 +50,23 @@ app.use((err, req, res, next) => {
   res.status(500).json({ error: 'Something went wrong!' });
 });
 
-app.listen(port, () => {
-  console.log(`Server is running on http://localhost:${port}`);
-});
+const startServer = async () => {
+  try {
+    await initializeDatabase(); 
+    
+    app.listen(port, () => {
+      console.log(`
+      ========================================
+       Server is running on port ${port}
+       Database: ${sequelize.config.database}
+       Environment: ${process.env.NODE_ENV || 'development'}
+      ========================================
+      `);
+    });
+    
+  } catch (error) {
+    console.error('Server startup failed:', error);
+    process.exit(1);
+  }
+};
+startServer();
