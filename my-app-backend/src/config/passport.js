@@ -13,7 +13,7 @@ passport.use(
       try {
         let user = await User.findByGoogleId(profile.id);
         if (!user) {
-          user = new User({
+          user = await User.create({
             googleId: profile.id,
             name: profile.displayName,
             email: profile.emails[0].value,
@@ -35,7 +35,7 @@ passport.serializeUser((user, done) => {
 
 passport.deserializeUser(async (id, done) => {
   try {
-    const user = await User.findById(id);
+    const user = await User.findByPk(id);
     done(null, user);
   } catch (err) {
     done(err, null);

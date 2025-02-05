@@ -12,7 +12,12 @@ const User = sequelize.define('User', {
     type: DataTypes.STRING,
     unique: true
   },
-  name: DataTypes.STRING,
+  name: {
+    type: DataTypes.STRING,
+    validate: {
+      len: [2, 50] 
+    }
+  },
   email: {
     type: DataTypes.STRING,
     unique: true,
@@ -41,8 +46,5 @@ User.findById = async (id) => {
   return await User.findByPk(id);
 };
 
-User.prototype.save = async function() {
-  return this.save();
-};
 
 module.exports = User;

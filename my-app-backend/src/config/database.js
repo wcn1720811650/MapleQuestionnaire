@@ -7,6 +7,9 @@ const sequelize = new Sequelize(
     host: process.env.DB_HOST,
     port: process.env.DB_PORT || 3306,
     dialect: 'mysql',
+    dialectOptions: {
+      charset: 'utf8mb4', 
+    },
     logging: false, 
     pool: {
       max: 5,
@@ -16,7 +19,9 @@ const sequelize = new Sequelize(
     },
     define: {
       timestamps: true, 
-      paranoid: true    
+      paranoid: true,
+      charset: 'utf8mb4',
+      collate: 'utf8mb4_unicode_ci',
     }
 });
 

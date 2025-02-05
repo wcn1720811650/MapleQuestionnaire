@@ -8,7 +8,7 @@ const questionnaireRouter = require('./routes/questionnaireRouter');
 const authRoutes = require('./routes/authRoutes'); 
 const userRoutes = require('./routes/userRoutes')
 const sequelize = require('./config/database');
-
+const chatbotRoutes = require('./routes/chatbotRoutes')
 const app = express();
 const port = 3001;
 
@@ -31,7 +31,7 @@ app.use(cors());
 
 app.use(
   session({
-    secret: 'your-secret-key', 
+    secret: 'my-secret-key', 
     resave: false,
     saveUninitialized: true,
   })
@@ -42,8 +42,7 @@ app.use(passport.session());
 
 app.use('/api/questionnaires', questionnaireRouter);
 app.use('/auth', authRoutes); 
-app.use('/api', userRoutes); 
-
+app.use('/api', userRoutes, chatbotRoutes); 
 
 app.use((err, req, res, next) => {
   console.error(err.stack);

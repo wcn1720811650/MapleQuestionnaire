@@ -26,6 +26,7 @@ import Logo from '../images/logo/logo.jpg';
 import Group from "../component/management/group";
 import Customer from "../component/management/customer";
 import Report from '../component/analytics/report';
+import Chatbot from '../component/Chatbot'; 
 
 const NAVIGATION = [
   {
@@ -314,6 +315,9 @@ export default function DashboardLayoutBasic() {
       theme={demoTheme}
       window={demoWindow}
     >
+
+      <Chatbot />
+
       <DashboardLayout
         slots={{
           appTitle: CustomAppTitle,

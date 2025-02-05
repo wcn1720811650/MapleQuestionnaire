@@ -5,8 +5,8 @@ import { ThemeProvider } from '@mui/material/styles';
 import theme from "./theme";
 import Home from "./pages/home";
 import Login from "./pages/login";
+import DashboardLayoutBasic from "./pages/questionnaire";
 
-import DashboardLayoutBasic from "./pages/manage";
 const App = () => {
   return (
     <ThemeProvider theme={theme}>
