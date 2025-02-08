@@ -16,7 +16,7 @@ function loginSuccess(req, res) {
       throw new Error('User not found in request');
     }
 
-    const token = jwt.sign({ userId: req.user.id.toString() }, process.env.JWT_SECRET, { expiresIn: '1h' });
+    const token = jwt.sign({ userId: req.user.id.toString(),role: req.user.role }, process.env.JWT_SECRET, { expiresIn: '1h' });
     res.redirect(`http://localhost:3000/login?token=${token}`);
   } catch (error) {
     console.error('Error generating token:', error);

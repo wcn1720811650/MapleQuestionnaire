@@ -16,13 +16,12 @@ const initializeDatabase = async () => {
   try {
     await sequelize.authenticate();
     console.log('Database connection established');
-
-    await sequelize.sync({ alter: true }); 
+    
+    await sequelize.sync({ force: false, alter: true });
     console.log('Database schema synchronized');
-
   } catch (error) {
     console.error('Database initialization failed:', error);
-    process.exit(1); 
+    process.exit(1);
   }
 };
 

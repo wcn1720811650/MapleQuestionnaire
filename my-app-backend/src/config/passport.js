@@ -1,6 +1,6 @@
 const passport = require('passport');
 const GoogleStrategy = require('passport-google-oauth20').Strategy;
-const User = require('../models/User');
+const { User } = require('../models');
 
 passport.use(
   new GoogleStrategy(
@@ -8,6 +8,7 @@ passport.use(
       clientID: process.env.GOOGLE_CLIENT_ID, 
       clientSecret: process.env.GOOGLE_CLIENT_SECRET, 
       callbackURL: 'http://localhost:3001/auth/google/callback',
+      prompt: 'select_account',
     },
     async (accessToken, refreshToken, profile, done) => {
       try {
@@ -18,6 +19,9 @@ passport.use(
             name: profile.displayName,
             email: profile.emails[0].value,
             avatar: profile.photos[0].value,
+            role: 'user',
+            createdAt: new Date(),
+            updatedAt: new Date()
           });
           user.save();
         }

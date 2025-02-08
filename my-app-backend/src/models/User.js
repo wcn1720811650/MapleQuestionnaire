@@ -10,7 +10,6 @@ const User = sequelize.define('User', {
   },
   googleId: {
     type: DataTypes.STRING,
-    unique: true
   },
   name: {
     type: DataTypes.STRING,
@@ -20,13 +19,12 @@ const User = sequelize.define('User', {
   },
   email: {
     type: DataTypes.STRING,
-    unique: true,
     allowNull: false
   },
   avatar: DataTypes.STRING,
   phoneNumber: DataTypes.STRING,
   role: {
-    type: DataTypes.STRING,
+    type: DataTypes.ENUM('user', 'manager'),
     defaultValue: 'user'
   }
 }, {

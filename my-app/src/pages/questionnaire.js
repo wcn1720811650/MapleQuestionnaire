@@ -24,7 +24,7 @@ import RecycleBin from "../component/questionnaire/recycleBin";
 import CreateQuestionnaire from "../component/questionnaire/createQuestionnaire";
 import Logo from '../images/logo/logo.jpg';
 import Group from "../component/management/group";
-import Customer from "../component/management/customer";
+import Customer from "../component/management/customer/customer";
 import Report from '../component/analytics/report';
 import Chatbot from '../component/Chatbot'; 
 
@@ -307,6 +307,15 @@ export default function DashboardLayoutBasic() {
 
   const router = useDemoRouter('/allQuestionnaires');
   const demoWindow = typeof window !== 'undefined' ? window : undefined;
+  const [role, setRole] = useState('');
+
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      setRole(payload.role);
+    }
+  }, []);
 
   return (
     <AppProvider
@@ -329,7 +338,7 @@ export default function DashboardLayoutBasic() {
           {router.pathname === '/recycleBin' && <RecycleBin />}
           {router.pathname === '/createQuestionnaire' && <CreateQuestionnaire />}
           {router.pathname === '/group' && <Group />}
-          {router.pathname === '/customer' && <Customer />}
+          {router.pathname === '/customer' && <Customer role={role} />}
           {router.pathname === '/report' && <Report />}
         </PageContainer>
       </DashboardLayout>
