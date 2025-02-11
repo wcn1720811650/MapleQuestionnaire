@@ -1,5 +1,6 @@
-// src/pages/createQuestionnaire.jsx
+// src/pages/createQuestionnaire.js
 import React, { useState } from 'react';
+import axios from 'axios';
 import {
   Box,
   Button,
@@ -75,7 +76,6 @@ export default function CreateQuestionnaire({ router }) {
     setOptions(newOptions);
   }
 
-  // click “Add” and add to questions
   function handleConfirmAdd() {
     const newQuestion = {
       id: Date.now(),
@@ -86,32 +86,47 @@ export default function CreateQuestionnaire({ router }) {
     setQuestions((prev) => [...prev, newQuestion]);
     handleCloseDialog();
   }
+  
 
-  // submit the whole questionnaire to localStorage
   function handleSubmitQuestionnaire() {
     if (!title.trim()) {
-      alert('title cannot be empty')
-      return
+      alert('Title cannot be empty');
+      return;
     }
     if (questions.length === 0) {
-      alert('you must add questions')
-      return
+      alert('You must add questions');
+      return;
     }
+    const userId = localStorage.getItem('userId');
+    console.log(userId);
+    if (!userId) {
+    alert('User not logged in or userId is missing');
+    return;
+  }
+  
     const newQ = {
-      id: Date.now(), 
       title: title.trim(),
       questions,
+      userId: parseInt(userId, 10),
     };
-    
-    const storedStr = localStorage.getItem('myQuestionnaires');
-    
-    let arr = storedStr ? JSON.parse(storedStr) : [];
-    arr.push(newQ);
-    localStorage.setItem('myQuestionnaires', JSON.stringify(arr));
-
-    setTitle('');
-    setQuestions([]); 
-
+  
+    axios
+      .post('/api/questionnaires', newQ, {
+        headers: { 
+          'Content-Type': 'application/json', 
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
+        },
+      })
+      .then((response) => {
+        console.log('Questionnaire created:', response.data);
+        setTitle('');
+        setQuestions([]);
+        alert('Questionnaire submitted successfully!');
+      })
+      .catch((error) => {
+        console.error('Error submitting questionnaire:', error);
+        alert('Failed to submit questionnaire');
+      });
   }
 
   return (

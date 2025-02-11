@@ -1,11 +1,10 @@
-const User = require('../models/User');
-const Customer = require('../models/Customer');
+const db = require('../models');
 const { Op } = require('sequelize');
 
 module.exports = {
   async getUserInfo(req, res) {
     try {
-      const user = await User.findById(req.user.id);
+      const user = await db.User.findById(req.user.id);
       if (!user) {
         return res.status(404).json({ error: 'User not found' });
       }
@@ -15,7 +14,7 @@ module.exports = {
         name: user.name,
         avatar: user.avatar,
         phoneNumber: user.phoneNumber,
-        role:user.role
+        role: user.role,
       });
     } catch (error) {
       console.error('Error:', error);
@@ -25,25 +24,25 @@ module.exports = {
 
   async getCustomerUsers(req, res) {
     try {
-      const currentUser = req.user; 
-  
-      const existingCustomers = await Customer.findAll({
+      const currentUser = req.user;
+
+      const existingCustomers = await db.Customer.findAll({
         where: { ownerId: currentUser.id },
-        attributes: ['customerId']
+        attributes: ['customerId'],
       });
-  
-      const existingCustomerIds = existingCustomers.map(c => c.customerId);
-  
-      const customers = await User.findAll({
+
+      const existingCustomerIds = existingCustomers.map((c) => c.customerId);
+
+      const customers = await db.User.findAll({
         where: {
           id: {
-            [Op.not]: currentUser.id, 
-            [Op.notIn]: existingCustomerIds 
+            [Op.not]: currentUser.id,
+            [Op.notIn]: existingCustomerIds,
           },
-          role: 'user' 
+          role: 'user',
         },
       });
-  
+
       res.json(customers);
     } catch (error) {
       console.error('Error fetching customer users:', error);
@@ -59,33 +58,31 @@ module.exports = {
         return res.status(400).json({ error: 'Customer ID is required' });
       }
 
-      const customer = await User.findByPk(customerId);
+      const customer = await db.User.findByPk(customerId);
       if (!customer) {
         return res.status(404).json({ error: 'Customer not found' });
       }
 
-      const owner = await User.findByPk(ownerId);
+      const owner = await db.User.findByPk(ownerId);
       if (!owner) {
         return res.status(404).json({ error: 'Owner not found' });
       }
 
-      const existingCustomer = await Customer.findOne({
-        where: { ownerId, customerId }
+      const existingCustomer = await db.Customer.findOne({
+        where: { ownerId, customerId },
       });
-
       if (existingCustomer) {
         return res.status(400).json({ error: 'Customer already added' });
       }
 
-      const newCustomer = await Customer.create({ ownerId, customerId });
-
+      const newCustomer = await db.Customer.create({ ownerId, customerId });
       res.status(201).json({
         message: 'Customer added successfully',
         customer: {
           id: customer.id,
           name: customer.name,
-          email: customer.email
-        }
+          email: customer.email,
+        },
       });
     } catch (error) {
       console.error('Error adding customer:', error);
@@ -96,19 +93,21 @@ module.exports = {
   async getMyCustomers(req, res) {
     try {
       const ownerId = req.user.id;
-      const customers = await Customer.findAll({
+      const customers = await db.Customer.findAll({
         where: { ownerId },
-        include: [{
-          model: User,
-          as: 'customerInfo',
-          attributes: ['id', 'name', 'email'] 
-        }]
+        include: [
+          {
+            model: db.User,
+            as: 'customerInfo',
+            attributes: ['id', 'name', 'email'],
+          },
+        ],
       });
 
-      const customerList = customers.map(c => ({
+      const customerList = customers.map((c) => ({
         id: c.customerInfo.id,
         name: c.customerInfo.name,
-        email: c.customerInfo.email
+        email: c.customerInfo.email,
       }));
 
       res.json(customerList);
@@ -122,12 +121,11 @@ module.exports = {
     try {
       const { customerId } = req.params;
       const ownerId = req.user.id;
-
-      const result = await Customer.destroy({
+      const result = await db.Customer.destroy({
         where: {
           ownerId,
-          customerId
-        }
+          customerId,
+        },
       });
 
       if (result === 0) {
@@ -139,5 +137,5 @@ module.exports = {
       console.error('Error deleting customer:', error);
       res.status(500).json({ error: 'Failed to delete customer' });
     }
-  }
+  },
 };

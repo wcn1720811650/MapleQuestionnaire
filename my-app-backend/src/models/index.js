@@ -1,11 +1,26 @@
-// src/models/index.js
-const User = require('./User');
-const Message = require('./Message');
+const fs = require('fs');
+const path = require('path');
+const Sequelize = require('sequelize');
+const sequelize = require('../config/database'); 
+const db = {};
 
-User.hasMany(Message);
-Message.belongsTo(User);
 
-module.exports = {
-    User,
-    Message
-  };
+fs.readdirSync(__dirname)
+  .filter((file) => file !== 'index.js') 
+  .forEach((file) => {
+    const model = require(path.join(__dirname, file))(sequelize, Sequelize.DataTypes);
+    db[model.name] = model;
+  });
+
+Object.keys(db).forEach((modelName) => {
+  if (db[modelName].associate) {
+    db[modelName].associate(db); 
+  }
+});
+
+sequelize.models = db;
+
+db.sequelize = sequelize;
+db.Sequelize = Sequelize;
+
+module.exports = db;

@@ -1,16 +1,31 @@
-// src/models/Message.js
 const { DataTypes } = require('sequelize');
-const sequelize = require('../config/database');
 
-const Message = sequelize.define('Message', {
-  content: {
-    type: DataTypes.TEXT,
-    allowNull: false
-  },
-  sender: {
-    type: DataTypes.ENUM('user', 'bot'),
-    allowNull: false
-  }
-});
+module.exports = (sequelize, DataTypes) => {
+  const Message = sequelize.define('Message', {
+    content: {
+      type: DataTypes.TEXT,
+      allowNull: false,
+    },
+    sender: {
+      type: DataTypes.ENUM('user', 'bot'),
+      allowNull: false,
+    },
+    UserId: {
+      type: DataTypes.INTEGER,
+      allowNull: false, 
+    },
+  }, {
+    tableName: 'messages',
+    timestamps: true,
+  });
 
-module.exports = Message;
+  Message.associate = (models) => {
+    Message.belongsTo(models.User, {
+      foreignKey: 'UserId',
+      as: 'user',
+      constraints: false, 
+    });
+  };
+
+  return Message;
+};

@@ -1,4 +1,4 @@
-// src/pages/AllQuestionnaires.jsx
+// src/pages/AllQuestionnaires.js
 import React from 'react';
 import QuestionnaireList from './QuestionnaireList/QuestionnaireList';
 

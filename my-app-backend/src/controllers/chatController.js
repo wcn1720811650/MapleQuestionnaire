@@ -17,12 +17,6 @@ exports.handleChatMessage = async (req, res) => {
         });
       }
 
-    const userMessage = await Message.create({
-      content: message,
-      sender: 'user',
-      UserId: userId
-    });
-
     const response = await axios.post(
       'https://api.deepseek.com/v1/chat/completions',
       {

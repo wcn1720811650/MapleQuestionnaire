@@ -16,8 +16,14 @@ const initializeDatabase = async () => {
   try {
     await sequelize.authenticate();
     console.log('Database connection established');
-    
-    await sequelize.sync({ force: false, alter: true });
+
+    if (process.env.NODE_ENV === 'development') {
+      console.log('Running in development mode. Syncing database schema...');
+      await sequelize.sync({ alter: true }); 
+    } else {
+      console.log('Running in production mode. Skipping automatic schema sync.');
+    }
+
     console.log('Database schema synchronized');
   } catch (error) {
     console.error('Database initialization failed:', error);
@@ -26,6 +32,7 @@ const initializeDatabase = async () => {
 };
 
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 app.use(cors());
 
 app.use(

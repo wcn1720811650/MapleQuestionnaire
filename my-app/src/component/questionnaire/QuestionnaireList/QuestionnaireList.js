@@ -1,5 +1,5 @@
-// src/components/QuestionnaireList.jsx
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
+import axios from 'axios';
 import {
   Box,
   Typography,
@@ -9,14 +9,12 @@ import {
   DialogContent,
   DialogActions,
   Button,
-  IconButton
+  IconButton,
 } from '@mui/material';
-
 import StarIcon from '@mui/icons-material/Star';
 import DeleteIcon from '@mui/icons-material/Delete';
 import RestoreIcon from '@mui/icons-material/Restore';
 import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
-
 import SingleChoiceRender from '../../questionType/SingleChoiceRender';
 import MultipleChoiceRender from '../../questionType/MultipleChoiceRender';
 import TextRender from '../../questionType/TextRender';
@@ -29,6 +27,7 @@ import TextRender from '../../questionType/TextRender';
  * @param {Boolean} showRestore 
  * @param {Boolean} showDeleteForever 
  */
+
 export default function QuestionnaireList({
   filterFn = () => true,
   showStar = false,
@@ -40,74 +39,63 @@ export default function QuestionnaireList({
   const [openDialog, setOpenDialog] = useState(false);
   const [selectedQ, setSelectedQ] = useState(null);
 
+  const loadData = useCallback(async () => {
+    try {
+      const response = await axios.get('/api/questionnaires', {
+        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
+      });
+      const all = response.data.filter(filterFn); 
+      setList(all);
+    } catch (error) {
+      console.error('Error loading questionnaires:', error);
+      setList([]); 
+    }
+  }, [filterFn]);
+
   useEffect(() => {
     loadData();
-  }, []);
-
-  function loadData() {
-    const storedStr = localStorage.getItem('myQuestionnaires');
-    if (storedStr) {
-      let all = JSON.parse(storedStr);
-
-      all = all.filter(filterFn);
-      setList(all);
-    } else {
-      setList([]);
-    }
-  }
+  }, [loadData]); 
 
   function handleStar(qid) {
-    const storedStr = localStorage.getItem('myQuestionnaires');
-    if (!storedStr) return;
-    let all = JSON.parse(storedStr);
-
-    all = all.map(q => {
-      if (q.id === qid) {
-        return { ...q, isStarred: !q.isStarred };
-      }
-      return q;
-    });
-    localStorage.setItem('myQuestionnaires', JSON.stringify(all));
-    loadData();
+    axios
+      .post(
+        `/api/questionnaires/${qid}/star`,
+        {},
+        { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } }
+      )
+      .then(() => loadData()) 
+      .catch((error) => console.error('Error starring questionnaire:', error));
   }
 
   function handleDelete(qid) {
-    const storedStr = localStorage.getItem('myQuestionnaires');
-    if (!storedStr) return;
-    let all = JSON.parse(storedStr);
-
-    all = all.map(q => {
-      if (q.id === qid) {
-        return { ...q, isDeleted: true };
-      }
-      return q;
-    });
-    localStorage.setItem('myQuestionnaires', JSON.stringify(all));
-    loadData();
+    axios
+      .post(
+        `/api/questionnaires/${qid}/delete`,
+        {},
+        { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } }
+      )
+      .then(() => loadData())
+      .catch((error) => console.error('Error deleting questionnaire:', error));
   }
 
   function handleRestore(qid) {
-    const storedStr = localStorage.getItem('myQuestionnaires');
-    if (!storedStr) return;
-    let all = JSON.parse(storedStr);
-
-    all = all.map(q => {
-      if (q.id === qid) {
-        return { ...q, isDeleted: false };
-      }
-      return q;
-    });
-    localStorage.setItem('myQuestionnaires', JSON.stringify(all));
-    loadData();
+    axios
+      .post(
+        `/api/questionnaires/${qid}/restore`,
+        {},
+        { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } }
+      )
+      .then(() => loadData())
+      .catch((error) => console.error('Error restoring questionnaire:', error));
   }
 
   function handleDeleteForever(qid) {
-    const storedStr = localStorage.getItem('myQuestionnaires');
-    if (!storedStr) return;
-    let all = JSON.parse(storedStr);
-    all = all.filter(q => q.id !== qid);
-    localStorage.setItem('myQuestionnaires', JSON.stringify(all));
-    loadData();
+    axios
+      .delete(`/api/questionnaires/${qid}`, {
+        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
+      })
+      .then(() => loadData())
+      .catch((error) => console.error('Error permanently deleting questionnaire:', error));
   }
 
   function handleOpenModal(q) {
@@ -139,7 +127,6 @@ export default function QuestionnaireList({
           <Typography variant="body2" sx={{ mb: 1 }}>
             Questions: {q.questions?.length || 0}
           </Typography>
-
           <Box sx={{ display: 'flex', gap: 1 }}>
             {showStar && (
               <IconButton
@@ -149,7 +136,6 @@ export default function QuestionnaireList({
                 <StarIcon />
               </IconButton>
             )}
-
             {showDelete && (
               <IconButton
                 color="error"
@@ -158,7 +144,6 @@ export default function QuestionnaireList({
                 <DeleteIcon />
               </IconButton>
             )}
-
             {showRestore && (
               <IconButton
                 color="primary"
@@ -167,7 +152,6 @@ export default function QuestionnaireList({
                 <RestoreIcon />
               </IconButton>
             )}
-
             {showDeleteForever && (
               <IconButton
                 color="primary"
@@ -179,7 +163,6 @@ export default function QuestionnaireList({
           </Box>
         </Paper>
       ))}
-
       <Dialog open={openDialog} onClose={handleCloseModal} maxWidth="md" fullWidth>
         {selectedQ && (
           <>

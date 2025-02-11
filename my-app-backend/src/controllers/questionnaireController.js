@@ -1,101 +1,111 @@
-// src/controllers/questionnaireController.js
-const e = require('express');
-const { questionnaires } = require('../data/inMemoryData');
-const { v4: uuidv4} = require('uuid')
-/**
- * get all questionnaires
- * @param {*} req 
- * @param {*} res 
- */
-function getAllQuestionnaires(req, res) {
+const db = require('../models');
 
-
-  return res.json(questionnaires);
-}
-
-
-function createQuestionnaire(req, res) {
-  const { title, questions } = req.body;
-  if (!title || typeof title!=='string' || title.trim() === '') {
-    return res.status(400).json({ error: 'title is required and must be a non-empty string' });
+exports.getAllQuestionnaires = async (req, res) => {
+  try {
+    const questionnaires = await db.Questionnaire.findAll();
+    res.status(200).json(questionnaires);
+  } catch (error) {
+    console.error('Error fetching questionnaires:', error);
+    res.status(500).json({ error: 'Internal server error' });
   }
-  if (!Array.isArray(questions) || questions.length === 0) {
-    return res.status(400).json({ error: 'questions is required and must be a non-empty array'})
-  }
+};
 
-  for (const question of questions) {
-    if (!question.question || typeof question.question !== 'string' || question.question.trim() === '') {
-      return res.status(400).json({ error: 'Each question must have a non-empty "question" field' });
+exports.createQuestionnaire = async (req, res) => {
+  try {
+    const { title, questions, userId } = req.body;
+
+    if (!title || typeof title !== 'string') {
+      return res.status(400).json({ error: 'Title is required and must be a string' });
     }
-    if (!question.type || typeof question.type !== 'string') {
-      return res.status(400).json({ error: 'Each question must have a "type" field' });
+    if (!Array.isArray(questions) || questions.length === 0) {
+      return res.status(400).json({ error: 'Questions are required and must be a non-empty array' });
     }
+    if (!userId || typeof userId !== 'number') {
+      return res.status(400).json({ error: 'UserId is required and must be a number' });
+    }
+    const newQuestionnaire = await db.Questionnaire.create({
+      title,
+      questions,
+      userId,
+    });
+
+    res.status(201).json({
+      message: 'Questionnaire created successfully',
+      questionnaire: newQuestionnaire,
+    });
+  } catch (error) {
+    console.error('Error creating questionnaire:', error);
+    res.status(500).json({ error: 'Failed to create questionnaire' });
   }
+};
 
-  const newQ = {
-    id: uuidv4(),
-    title,
-    questions,
-    isStarred: false,
-    isDeleted: false,
-  };
-  questionnaires.push(newQ);
+exports.starQuestionnaire = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const questionnaire = await db.Questionnaire.findByPk(id);
+    if (!questionnaire) {
+      return res.status(404).json({ error: 'Questionnaire not found' });
+    }
 
-  return res.status(201).json(newQ);
-}
+    questionnaire.isStarred = !questionnaire.isStarred;
+    await questionnaire.save();
 
-
-function getQuestionnaireById(req, res) {
-  const { id } = req.params;
-  const found = questionnaires.find(q => String(q.id) === id);
-  if (!found) {
-    const error = new Error('Questionnaire not found');
-    error.status = 404;
-    throw error;
+    res.status(200).json({ message: 'Questionnaire starred successfully' });
+  } catch (error) {
+    console.error('Error starring questionnaire:', error);
+    res.status(500).json({ error: 'Internal server error' });
   }
-  return res.json(found);
-}
+};
 
+exports.deleteQuestionnaire = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const questionnaire = await db.Questionnaire.findByPk(id);
+    if (!questionnaire) {
+      return res.status(404).json({ error: 'Questionnaire not found' });
+    }
 
-function updateQuestionnaire(req, res) {
-  const { id } = req.params;
-  const { title, questions, isStarred, isDeleted } = req.body;
+    questionnaire.isDeleted = true;
+    await questionnaire.save();
 
-  const index = questionnaires.findIndex(q => String(q.id) === id);
-  if (index === -1) {
-    return res.status(404).json({ error: 'Questionnaire not found' });
+    res.status(200).json({ message: 'Questionnaire deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting questionnaire:', error);
+    res.status(500).json({ error: 'Internal server error' });
   }
+};
 
-  const updated = {
-    ...questionnaires[index],
-    ...(title !== undefined && { title }),
-    ...(questions !== undefined && { questions }),
-    ...(isStarred !== undefined && { isStarred }),
-    ...(isDeleted !== undefined && { isDeleted }),
-  };
+exports.restoreQuestionnaire = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const questionnaire = await db.Questionnaire.findByPk(id);
+    if (!questionnaire) {
+      return res.status(404).json({ error: 'Questionnaire not found' });
+    }
 
-  questionnaires[index] = updated;
-  return res.json(updated);
-}
+    questionnaire.isDeleted = false;
+    await questionnaire.save();
 
-
-function deleteQuestionnaire(req, res) {
-  const { id } = req.params;
-  const before = questionnaires.length;
-  const after = questionnaires.filter(q => String(q.id) !== id);
-  if (after.length === before) {
-    return res.status(404).json({ error: 'Questionnaire not found' });
+    res.status(200).json({ message: 'Questionnaire restored successfully' });
+  } catch (error) {
+    console.error('Error restoring questionnaire:', error);
+    res.status(500).json({ error: 'Internal server error' });
   }
-  questionnaires.length = 0;
-  questionnaires.push(...after);
+};
 
-  return res.json({ message: 'Deleted permanently' });
-}
+exports.deleteForever = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const questionnaire = await db.Questionnaire.findByPk(id);
+    if (!questionnaire) {
+      return res.status(404).json({ error: 'Questionnaire not found' });
+    }
 
-module.exports = {
-  getAllQuestionnaires,
-  createQuestionnaire,
-  getQuestionnaireById,
-  updateQuestionnaire,
-  deleteQuestionnaire,
+    await questionnaire.destroy({ force: true });
+
+    res.status(200).json({ message: 'Questionnaire permanently deleted successfully' });
+  } catch (error) {
+    console.error('Error permanently deleting questionnaire:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
 };

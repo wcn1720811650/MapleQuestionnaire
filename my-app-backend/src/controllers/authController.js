@@ -17,7 +17,7 @@ function loginSuccess(req, res) {
     }
 
     const token = jwt.sign({ userId: req.user.id.toString(),role: req.user.role }, process.env.JWT_SECRET, { expiresIn: '1h' });
-    res.redirect(`http://localhost:3000/login?token=${token}`);
+    res.redirect(`http://localhost:3000/login?token=${token}&userId=${req.user.id.toString()}`);
   } catch (error) {
     console.error('Error generating token:', error);
     res.status(500).json({ error: 'Failed to generate token' });

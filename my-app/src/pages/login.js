@@ -5,7 +5,6 @@ import {
   Paper,
   Typography,
   Button,
-  Link,
 } from '@mui/material';
 
 function LoginPage() {
@@ -17,8 +16,11 @@ function LoginPage() {
   useEffect(() => {
     const queryParams = new URLSearchParams(window.location.search);
     const token = queryParams.get('token');
+    const userId = queryParams.get('userId');
+    
     if (token) {
       localStorage.setItem('token', token);
+      localStorage.setItem('userId', userId);
       window.location.href = '/questionnaire'; 
     }
   }, []);
