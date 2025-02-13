@@ -6,7 +6,8 @@ const {
   starQuestionnaire, 
   deleteQuestionnaire, 
   restoreQuestionnaire, 
-  deleteForever
+  deleteForever,
+  updatePublicStatus
 } = require('../controllers/questionnaireController');
 
 const router = express.Router();
@@ -18,5 +19,7 @@ router.post('/:id/star', starQuestionnaire);
 router.post('/:id/delete', deleteQuestionnaire);
 router.post('/:id/restore', restoreQuestionnaire);
 router.delete('/:id', deleteForever);
+router.delete('/:id', deleteForever);
+router.put('/questionnaires/:id/public', updatePublicStatus);
 
 module.exports = router;

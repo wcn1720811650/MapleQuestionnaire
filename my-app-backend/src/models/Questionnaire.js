@@ -27,6 +27,10 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.INTEGER, 
       allowNull: false,
     },
+    isPublic:{
+      type:DataTypes.BOOLEAN,
+      defaultValue:false
+    }
   }, {
     tableName: 'questionnaires',
     timestamps: true,

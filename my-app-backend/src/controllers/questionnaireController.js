@@ -109,3 +109,29 @@ exports.deleteForever = async (req, res) => {
     res.status(500).json({ error: 'Internal server error' });
   }
 };
+
+exports.updatePublicStatus = async (req, res)=>{
+  try {
+    const { id } = req.params;
+    const { isPublic } = req.body
+    if (typeof isPublic !== 'boolean') {
+      return res.status(400).json({ error: 'isPublick must be a boolean value' });
+    }
+
+    const questionnaire = await db.questionnaire.findByPk(id);
+    if (!questionnaire) {
+      return res.status(404).json({ error: 'Questionnaire not found' });
+    }
+
+    questionnaire.isPublic = isPublic;
+    await questionnaire.save();
+
+    res.status(200).json({
+      message:'Public status updated successfully',
+      questionnaire,
+    })
+  } catch (error) {
+    console.error('Error updating public status', error);
+    res.status(500).json({ error: 'Failed to update public status' });
+  }
+}
