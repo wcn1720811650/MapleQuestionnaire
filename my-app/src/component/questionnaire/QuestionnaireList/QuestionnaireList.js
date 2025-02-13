@@ -10,6 +10,8 @@ import {
   DialogActions,
   Button,
   IconButton,
+  Switch,
+  FormControlLabel 
 } from '@mui/material';
 import StarIcon from '@mui/icons-material/Star';
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -55,6 +57,22 @@ export default function QuestionnaireList({
   useEffect(() => {
     loadData();
   }, [loadData]); 
+
+  const handleTogglePublic = async (id, currentStatus) => {
+    try {
+      await axios.post(`/api/questionnaires/${id}/public`, {}, {
+        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
+      });
+
+      setList((prev) =>
+        prev.map((q) =>
+          q.id === id ? { ...q, isPublic: !currentStatus } : q
+        )
+      );
+    } catch (error) {
+      console.error('Error toggling public status:', error);
+    }
+  };
 
   function handleStar(qid) {
     axios
@@ -127,7 +145,22 @@ export default function QuestionnaireList({
           <Typography variant="body2" sx={{ mb: 1 }}>
             Questions: {q.questions?.length || 0}
           </Typography>
-          <Box sx={{ display: 'flex', gap: 1 }}>
+          <Box sx={{ display: 'flex', gap: 1, alignItems:'center' }}>
+          <FormControlLabel control={
+            <Switch
+              checked={q.isPublic}
+              onChange={() => handleTogglePublic(q.id, q.isPublic)}
+              sx={{
+                '& .MuiSwitch-switchBase.Mui-checked': {
+                  color: '#4B9B4B',
+                },
+                '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
+                  backgroundColor: '#4B9B4B', 
+                },
+              }}
+            />} label={q.isPublic ? 'Public' : 'Private'} >
+          </FormControlLabel>
+
             {showStar && (
               <IconButton
                 color={q.isStarred ? 'primary' : 'default'}
