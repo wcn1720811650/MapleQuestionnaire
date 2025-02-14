@@ -36,11 +36,12 @@ export default function QuestionnaireList({
   showDelete = false,
   showRestore = false,
   showDeleteForever = false,
+  disableSwitch = false,
 }) {
   const [list, setList] = useState([]);
   const [openDialog, setOpenDialog] = useState(false);
   const [selectedQ, setSelectedQ] = useState(null);
-
+  
   const loadData = useCallback(async () => {
     try {
       const response = await axios.get('/api/questionnaires', {
@@ -146,20 +147,26 @@ export default function QuestionnaireList({
             Questions: {q.questions?.length || 0}
           </Typography>
           <Box sx={{ display: 'flex', gap: 1, alignItems:'center' }}>
-          <FormControlLabel control={
-            <Switch
-              checked={q.isPublic}
-              onChange={() => handleTogglePublic(q.id, q.isPublic)}
-              sx={{
-                '& .MuiSwitch-switchBase.Mui-checked': {
-                  color: '#4B9B4B',
-                },
-                '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
-                  backgroundColor: '#4B9B4B', 
-                },
-              }}
-            />} label={q.isPublic ? 'Public' : 'Private'} >
-          </FormControlLabel>
+          {!disableSwitch && (
+            <FormControlLabel
+              control={
+                <Switch
+                  checked={q.isPublic}
+                  onChange={() => handleTogglePublic(q.id, q.isPublic)}
+                  disabled={disableSwitch} 
+                  sx={{
+                    '& .MuiSwitch-switchBase.Mui-checked': {
+                      color: '#4B9B4B',
+                    },
+                    '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
+                      backgroundColor: '#4B9B4B',
+                    },
+                  }}
+                />
+              }
+              label={q.isPublic ? 'Public' : 'Private'}
+            />
+          )}
 
             {showStar && (
               <IconButton

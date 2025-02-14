@@ -8,6 +8,7 @@ import CreateIcon from '@mui/icons-material/Create';
 import AssignmentIcon from '@mui/icons-material/Assignment';
 import PersonIcon from '@mui/icons-material/Person';
 import GroupIcon from '@mui/icons-material/Group';
+import LibraryBooksIcon from '@mui/icons-material/LibraryBooks';
 import Avatar from '@mui/material/Avatar';
 import IconButton from '@mui/material/IconButton';
 import Popover from '@mui/material/Popover';
@@ -18,10 +19,11 @@ import { Modal } from '@mui/material';
 import { AppProvider } from '@toolpad/core/AppProvider';
 import { DashboardLayout } from '@toolpad/core/DashboardLayout';
 import { PageContainer } from '@toolpad/core/PageContainer';
-import AllQuestionnaires from "../component/questionnaire/allQuestionnaires";
+import AllQuestionnaires from "../component/questionnaire/myQuestionnaires";
 import StarQuestionnaires from "../component/questionnaire/starQuestionnaires";
 import RecycleBin from "../component/questionnaire/recycleBin";
 import CreateQuestionnaire from "../component/questionnaire/createQuestionnaire";
+import PublicQuestionnaires from '../component/questionnaire/publicQuestionnaires';
 import Logo from '../images/logo/logo.jpg';
 import Group from "../component/management/group";
 import Customer from "../component/management/customer/customer";
@@ -43,10 +45,10 @@ const NAVIGATION = [
     title: 'Main items',
   },
   {
-    segment: 'allQuestionnaires',
-    title: 'All Questionnaires',
+    segment: 'myQuestionnaires',
+    title: 'My Questionnaires',
     icon: <AssignmentIcon />,
-    path: '/allQuestionnaires',
+    path: '/myQuestionnaires',
   },
   {
     segment: 'starQuestionnaires',
@@ -57,6 +59,11 @@ const NAVIGATION = [
     segment: 'recycleBin',
     title: 'Recycle Bin',
     icon: <DeleteIcon />,
+  },
+  {
+    segment: 'publicQuestionnaires',
+    title: 'Public Questionnaires',
+    icon: <LibraryBooksIcon />,
   },
   {
     kind: 'divider',
@@ -305,7 +312,7 @@ function CustomAppTitle() {
 
 export default function DashboardLayoutBasic() {
 
-  const router = useDemoRouter('/allQuestionnaires');
+  const router = useDemoRouter('/myQuestionnaires');
   const demoWindow = typeof window !== 'undefined' ? window : undefined;
   const [role, setRole] = useState('');
 
@@ -333,10 +340,11 @@ export default function DashboardLayoutBasic() {
         }}
       >
         <PageContainer>
-          {router.pathname === '/allQuestionnaires' && <AllQuestionnaires />}
+          {router.pathname === '/myQuestionnaires' && <AllQuestionnaires />}
           {router.pathname === '/starQuestionnaires' && <StarQuestionnaires />}
           {router.pathname === '/recycleBin' && <RecycleBin />}
           {router.pathname === '/createQuestionnaire' && <CreateQuestionnaire />}
+          {router.pathname === '/publicQuestionnaires' && <PublicQuestionnaires />}
           {router.pathname === '/group' && <Group />}
           {router.pathname === '/customer' && <Customer role={role} />}
           {router.pathname === '/report' && <Report />}

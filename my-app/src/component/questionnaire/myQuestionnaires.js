@@ -2,16 +2,18 @@
 import React from 'react';
 import QuestionnaireList from './QuestionnaireList/QuestionnaireList';
 
-export default function AllQuestionnaires() {
+export default function MyQuestionnaires() {
 
   return (
     <div>
-      <h2>All Questionnaires</h2>
+      <h2>My Questionnaires</h2>
       <QuestionnaireList
-        filterFn={(q) => q.isDeleted !== true}
+        filterFn={(q) => Number(localStorage.getItem('userId')) === q.userId && !q.isDeleted}
         showStar
         showDelete
       />
+      <div>
+      </div>
     </div>
   );
 }
