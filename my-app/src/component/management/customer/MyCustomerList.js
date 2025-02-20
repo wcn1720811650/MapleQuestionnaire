@@ -15,12 +15,14 @@ import {
   CircularProgress,
   Alert,
   IconButton,
-  Snackbar
+  Checkbox,
+  Snackbar,
 } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 
-const MyCustomerList = ({ open, onClose }) => {
+const MyCustomerList = ({ open, onClose, onSelect }) => {
   const [customers, setCustomers] = useState([]);
+  const [selected, setSelected] = useState([]); 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
@@ -30,7 +32,7 @@ const MyCustomerList = ({ open, onClose }) => {
   const fetchCustomers = async () => {
     try {
       const response = await fetch('http://localhost:3001/api/my-customers', {
-        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
       });
       const data = await response.json();
       setCustomers(data);
@@ -50,17 +52,17 @@ const MyCustomerList = ({ open, onClose }) => {
     try {
       const response = await fetch(`http://localhost:3001/api/my-customers/${customerId}`, {
         method: 'DELETE',
-        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
       });
-      
+
       if (!response.ok) {
         setSnackbarMessage('Failed to delete customer');
         setSnackbarSeverity('error');
         throw new Error('Failed to delete customer');
-      }else{
+      } else {
         setSnackbarMessage('Customer deleted successfully');
         setSnackbarSeverity('success');
-        setCustomers(customers.filter(c => c.id !== customerId));
+        setCustomers(customers.filter((c) => c.id !== customerId));
       }
       setSnackbarOpen(true);
     } catch (err) {
@@ -70,19 +72,53 @@ const MyCustomerList = ({ open, onClose }) => {
       setError(err.message);
     }
   };
+
+  const handleSelect = (customerId) => {
+    if (selected.includes(customerId)) {
+      setSelected(selected.filter((id) => id !== customerId));
+    } else {
+      setSelected([...selected, customerId]); 
+    }
+  };
+
+  const handleConfirmSelection = () => {
+    const selectedCustomers = customers.filter((c) => selected.includes(c.id));
+    onSelect(selectedCustomers); 
+    onClose(); 
+  };
+
   const handleSnackbarClose = () => {
     setSnackbarOpen(false);
   };
 
   return (
     <Dialog open={open} onClose={onClose} fullWidth maxWidth="md">
-      <DialogTitle>My Customers</DialogTitle>
+      <DialogTitle>Select Customers</DialogTitle>
       <DialogContent>
-        {loading ? <CircularProgress /> : error ? <Alert severity="error">{error}</Alert> : (
+        {loading ? (
+          <CircularProgress />
+        ) : error ? (
+          <Alert severity="error">{error}</Alert>
+        ) : (
           <TableContainer component={Paper}>
             <Table>
               <TableHead>
                 <TableRow>
+                  <TableCell padding="checkbox">
+                    <Checkbox
+                      indeterminate={
+                        selected.length > 0 && selected.length < customers.length
+                      }
+                      checked={selected.length === customers.length}
+                      onChange={() =>
+                        setSelected(
+                          selected.length === customers.length
+                            ? []
+                            : customers.map((c) => c.id)
+                        )
+                      }
+                    />
+                  </TableCell>
                   <TableCell>ID</TableCell>
                   <TableCell>Name</TableCell>
                   <TableCell>Email</TableCell>
@@ -90,14 +126,20 @@ const MyCustomerList = ({ open, onClose }) => {
                 </TableRow>
               </TableHead>
               <TableBody>
-                {customers.map(customer => (
+                {customers.map((customer) => (
                   <TableRow key={customer.id}>
+                    <TableCell padding="checkbox">
+                      <Checkbox
+                        checked={selected.includes(customer.id)}
+                        onChange={() => handleSelect(customer.id)}
+                      />
+                    </TableCell>
                     <TableCell>{customer.id}</TableCell>
                     <TableCell>{customer.name}</TableCell>
                     <TableCell>{customer.email}</TableCell>
                     <TableCell>
-                      <IconButton 
-                        color="error" 
+                      <IconButton
+                        color="error"
                         onClick={() => handleDelete(customer.id)}
                       >
                         <DeleteIcon />
@@ -111,7 +153,10 @@ const MyCustomerList = ({ open, onClose }) => {
         )}
       </DialogContent>
       <DialogActions>
-        <Button onClick={onClose}>Close</Button>
+        <Button onClick={onClose}>Cancel</Button>
+        <Button variant="contained" onClick={handleConfirmSelection}>
+          Confirm Selection
+        </Button>
       </DialogActions>
       <Snackbar
         open={snackbarOpen}
@@ -120,11 +165,10 @@ const MyCustomerList = ({ open, onClose }) => {
         anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
       >
         <Alert onClose={handleSnackbarClose} severity={snackbarSeverity} sx={{ width: '100%' }}>
-            {snackbarMessage}
+          {snackbarMessage}
         </Alert>
       </Snackbar>
     </Dialog>
-    
   );
 };
 

@@ -26,6 +26,12 @@ module.exports = (sequelize, DataTypes) => {
       as: 'customerInfo',
       constraints: false, 
     });
+
+    Customer.belongsToMany(models.Group, {
+      through: 'GroupCustomer', 
+      as: 'groups', 
+      foreignKey: 'customerId',
+    });
   };
 
   return Customer;

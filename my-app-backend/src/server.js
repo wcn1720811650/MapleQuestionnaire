@@ -9,6 +9,7 @@ const authRoutes = require('./routes/authRoutes');
 const userRoutes = require('./routes/userRoutes')
 const sequelize = require('./config/database');
 const chatbotRoutes = require('./routes/chatbotRoutes')
+const groupRoutes = require('./routes/groupRoutes')
 const app = express();
 const port = 3001;
 
@@ -49,6 +50,8 @@ app.use(passport.session());
 app.use('/api/questionnaires', questionnaireRouter);
 app.use('/auth', authRoutes); 
 app.use('/api', userRoutes, chatbotRoutes); 
+app.use('/api/groups', groupRoutes); 
+
 
 app.use((err, req, res, next) => {
   console.error(err.stack);

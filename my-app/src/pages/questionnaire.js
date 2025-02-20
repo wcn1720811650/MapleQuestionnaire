@@ -5,9 +5,9 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import BarChartIcon from '@mui/icons-material/BarChart';
 import StarIcon from '@mui/icons-material/Star';
 import CreateIcon from '@mui/icons-material/Create';
+import GroupAddIcon from '@mui/icons-material/GroupAdd';
 import AssignmentIcon from '@mui/icons-material/Assignment';
 import PersonIcon from '@mui/icons-material/Person';
-import GroupIcon from '@mui/icons-material/Group';
 import LibraryBooksIcon from '@mui/icons-material/LibraryBooks';
 import Avatar from '@mui/material/Avatar';
 import IconButton from '@mui/material/IconButton';
@@ -15,6 +15,7 @@ import Popover from '@mui/material/Popover';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import Button from '@mui/material/Button';
+import GroupIcon from '@mui/icons-material/Group';
 import { Modal } from '@mui/material';
 import { AppProvider } from '@toolpad/core/AppProvider';
 import { DashboardLayout } from '@toolpad/core/DashboardLayout';
@@ -24,11 +25,12 @@ import StarQuestionnaires from "../component/questionnaire/starQuestionnaires";
 import RecycleBin from "../component/questionnaire/recycleBin";
 import CreateQuestionnaire from "../component/questionnaire/createQuestionnaire";
 import PublicQuestionnaires from '../component/questionnaire/publicQuestionnaires';
+import MyGroup from '../component/management/group/myGroup';
 import Logo from '../images/logo/logo.jpg';
-import Group from "../component/management/group";
 import Customer from "../component/management/customer/customer";
 import Report from '../component/analytics/report';
 import Chatbot from '../component/Chatbot'; 
+import CreateGroup from '../component/management/group/createGroup';
 
 const NAVIGATION = [
   {
@@ -78,7 +80,12 @@ const NAVIGATION = [
     icon: <PersonIcon />,
   },
   {
-    segment: 'group',
+    segment: 'createGroup',
+    title: 'Create Groups',
+    icon: <GroupAddIcon />,
+  },
+  {
+    segment: 'myGroup',
     title: 'My Groups',
     icon: <GroupIcon />,
   },
@@ -345,9 +352,11 @@ export default function DashboardLayoutBasic() {
           {router.pathname === '/recycleBin' && <RecycleBin />}
           {router.pathname === '/createQuestionnaire' && <CreateQuestionnaire />}
           {router.pathname === '/publicQuestionnaires' && <PublicQuestionnaires />}
-          {router.pathname === '/group' && <Group />}
+          {router.pathname === '/createGroup' && <CreateGroup />}
           {router.pathname === '/customer' && <Customer role={role} />}
           {router.pathname === '/report' && <Report />}
+          {router.pathname === '/myGroup' && <MyGroup />}
+
         </PageContainer>
       </DashboardLayout>
     </AppProvider>
