@@ -8,7 +8,7 @@ export default function StarQuestionnaires() {
     <div>
       <h2>Star Questionnaires</h2>
       <QuestionnaireList
-        filterFn={(q) => q.isStarred === true && q.isDeleted !== true}
+        filterFn={(q) => Number(localStorage.getItem('userId')) === q.userId && q.isStarred === true && q.isDeleted !== true}
       />
     </div>
   );
