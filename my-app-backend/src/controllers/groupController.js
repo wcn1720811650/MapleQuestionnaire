@@ -41,11 +41,12 @@ exports.createGroup = async (req, res) => {
   }
 };
 
-exports.getGroupCustomers = async (req, res) => {
+exports.getGroups = async (req, res) => {
   try {
-    const groupId = parseInt(req.params.id);
+    const userId = req.user.id; 
 
-    const group = await db.Group.findByPk(groupId, {
+    const groups = await db.Group.findAll({
+      where: { userId }, 
       include: [
         {
           model: db.Customer,
@@ -55,23 +56,42 @@ exports.getGroupCustomers = async (req, res) => {
       ],
     });
 
-    if (!group) {
-      return res.status(404).json({ error: 'Group not found' });
-    }
-
     res.status(200).json({
-      group: {
+      total: groups.length,
+      groups: groups.map((group) => ({
         id: group.id,
         name: group.name,
         customers: group.customers.map((c) => ({
           id: c.id,
           name: c.customerInfo?.name || 'Unknown',
-          email: c.customerInfo?.email || 'Unknown',
+          email: c.customerInfo?.email || 'No email available'
         })),
-      },
+      })),
     });
   } catch (error) {
-    console.error('Error fetching group customers:', error);
+    console.error('Error fetching groups:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
+exports.deleteGroup = async (req, res) => {
+  try {
+    const groupId = parseInt(req.params.id); 
+    const userId = req.user.id; 
+
+    const group = await db.Group.findOne({
+      where: { id: groupId, userId }, 
+    });
+
+    if (!group) {
+      return res.status(404).json({ error: 'Group not found or you do not have permission to delete it' });
+    }
+
+    await group.destroy();
+
+    res.status(200).json({ message: 'Group deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting group:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
 };
