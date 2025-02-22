@@ -95,3 +95,22 @@ exports.deleteGroup = async (req, res) => {
     res.status(500).json({ error: 'Internal server error' });
   }
 };
+
+exports.removeCustomer = async (req, res) => {
+  try {
+    const { groupId } = req.params;
+    const { customerIds } = req.body;
+
+    const group = await db.Group.findByPk(groupId);
+    if (!group) {
+      return res.status(404).json({ error: 'Group not found' });
+    }
+
+    await group.removeCustomers(customerIds);
+
+    res.status(200).json({ message: 'Customers removed successfully' });
+  } catch (error) {
+    console.error('Error removing customers:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+}

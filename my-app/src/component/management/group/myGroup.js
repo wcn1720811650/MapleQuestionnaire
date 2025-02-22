@@ -13,14 +13,22 @@ import {
   ListItemText,
   IconButton,
   Paper,
+  Table,
+  TableHead,
+  TableBody,
+  TableRow,
+  TableCell,
+  Checkbox,
 } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
+
 const MyGroup = () => {
   const [groups, setGroups] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [openDialog, setOpenDialog] = useState(false);
   const [selectedGroup, setSelectedGroup] = useState(null);
+  const [selectedCustomers, setSelectedCustomers] = useState([]); 
 
   const fetchGroups = async () => {
     try {
@@ -62,12 +70,57 @@ const MyGroup = () => {
 
   const handleOpenDialog = (group) => {
     setSelectedGroup(group);
+    setSelectedCustomers([]); 
     setOpenDialog(true);
   };
 
   const handleCloseDialog = () => {
     setOpenDialog(false);
     setSelectedGroup(null);
+  };
+
+  const handleCheckboxChange = (customerId) => {
+    setSelectedCustomers((prevSelected) => {
+      if (prevSelected.includes(customerId)) {
+        return prevSelected.filter((id) => id !== customerId); 
+      } else {
+        return [...prevSelected, customerId]; 
+      }
+    });
+  };
+
+  const handleRemoveSelectedCustomers = async () => {
+    if (selectedCustomers.length === 0) {
+      alert('Please select at least one customer to remove.');
+      return;
+    }
+
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        throw new Error('User is not authenticated');
+      }
+
+      await axios.post(
+        `/api/groups/${selectedGroup.id}/remove-customers`,
+        { customerIds: selectedCustomers },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      fetchGroups();
+      setSelectedGroup((prevGroup) => ({
+        ...prevGroup,
+        customers: prevGroup.customers.filter((c) => !selectedCustomers.includes(c.id)),
+      }));
+  
+      setSelectedCustomers([]);
+    } catch (err) {
+      console.error('Error removing customers:', err);
+      alert('Failed to remove customers from the group.');
+    }
   };
 
   useEffect(() => {
@@ -132,31 +185,69 @@ const MyGroup = () => {
       <Dialog open={openDialog} onClose={handleCloseDialog} maxWidth="sm" fullWidth>
         <DialogTitle>Group Members</DialogTitle>
         <DialogContent>
-          {selectedGroup && selectedGroup.customers.length > 0 ? (
-            selectedGroup.customers.map((customer) => (
-              <Paper
-                key={customer.id}
-                sx={{
-                  p: 1,
-                  mb: 1,
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  alignItems: 'center',
-                }}
-              >
-                <Typography variant="body1" fontWeight="bold">
-                  {customer.name || 'Unknown'}
-                </Typography>
-                <Typography variant="body2" color="text.secondary">
-                  {customer.email || 'No email available'}
-                </Typography>
-              </Paper>
-            ))
-          ) : (
-            <Typography>No members in this group.</Typography>
+          {selectedGroup && (
+            <>
+              <Table size="small">
+                <TableHead>
+                  <TableRow>
+                    <TableCell padding="checkbox">
+                      <Checkbox
+                        indeterminate={
+                          selectedCustomers.length > 0 &&
+                          selectedCustomers.length < selectedGroup.customers.length
+                        }
+                        checked={
+                          selectedCustomers.length === selectedGroup.customers.length &&
+                          selectedGroup.customers.length > 0
+                        }
+                        onChange={(e) => {
+                          if (e.target.checked) {
+                            setSelectedCustomers(selectedGroup.customers.map((c) => c.id)); 
+                          } else {
+                            setSelectedCustomers([]); 
+                          }
+                        }}
+                      />
+                    </TableCell>
+                    <TableCell>Name</TableCell>
+                    <TableCell>Email</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {selectedGroup.customers.length > 0 ? (
+                    selectedGroup.customers.map((customer) => (
+                      <TableRow key={customer.id}>
+                        <TableCell padding="checkbox">
+                          <Checkbox
+                            checked={selectedCustomers.includes(customer.id)}
+                            onChange={() => handleCheckboxChange(customer.id)}
+                          />
+                        </TableCell>
+                        <TableCell>{customer.name || 'Unknown'}</TableCell>
+                        <TableCell>{customer.email || 'No email available'}</TableCell>
+                      </TableRow>
+                    ))
+                  ) : (
+                    <TableRow>
+                      <TableCell colSpan={3} align="center">
+                        No members in this group.
+                      </TableCell>
+                    </TableRow>
+                  )}
+                </TableBody>
+              </Table>
+            </>
           )}
         </DialogContent>
         <DialogActions>
+          <Button
+            variant="contained"
+            color="error"
+            disabled={selectedCustomers.length === 0}
+            onClick={handleRemoveSelectedCustomers}
+          >
+            Remove Selected
+          </Button>
           <Button onClick={handleCloseDialog} color="inherit">
             Close
           </Button>

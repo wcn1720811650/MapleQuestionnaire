@@ -11,6 +11,8 @@ import {
   Typography,
   Paper,
   IconButton,
+  Snackbar,
+  Alert,
 } from '@mui/material';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -19,7 +21,10 @@ export default function CreateGroup() {
   const [groupName, setGroupName] = useState('');
   const [selectedCustomers, setSelectedCustomers] = useState([]);
   const [openDialog, setOpenDialog] = useState(false);
-  const [customers, setCustomers] = useState([]); 
+  const [customers, setCustomers] = useState([]);
+  const [snackbarOpen, setSnackbarOpen] = useState(false); 
+  const [snackbarMessage, setSnackbarMessage] = useState(''); 
+  const [snackbarSeverity, setSnackbarSeverity] = useState('success'); 
 
   const handleOpenDialog = async () => {
     try {
@@ -30,7 +35,9 @@ export default function CreateGroup() {
       setOpenDialog(true);
     } catch (error) {
       console.error('Error fetching customers:', error);
-      alert('Failed to load customers');
+      setSnackbarMessage('Failed to load customers');
+      setSnackbarSeverity('error');
+      setSnackbarOpen(true);
     }
   };
 
@@ -50,27 +57,33 @@ export default function CreateGroup() {
 
   const handleSubmitGroup = () => {
     if (!groupName.trim()) {
-      alert('Group name cannot be empty');
+      setSnackbarMessage('Group name cannot be empty');
+      setSnackbarSeverity('warning');
+      setSnackbarOpen(true);
       return;
     }
     if (selectedCustomers.length === 0) {
-      alert('You must select at least one customer');
+      setSnackbarMessage('You must select at least one customer');
+      setSnackbarSeverity('warning');
+      setSnackbarOpen(true);
       return;
     }
-  
+
     const userId = localStorage.getItem('userId');
     if (!userId) {
-      alert('User not logged in or userId is missing');
+      setSnackbarMessage('User not logged in or userId is missing');
+      setSnackbarSeverity('error');
+      setSnackbarOpen(true);
       return;
     }
-  
+
     const newGroup = {
       name: groupName.trim(),
       customerIds: selectedCustomers.map((c) => c.id),
     };
-  
+
     console.log('Request Body:', newGroup);
-  
+
     axios
       .post('/api/groups', newGroup, {
         headers: {
@@ -82,12 +95,20 @@ export default function CreateGroup() {
         console.log('Group created:', response.data);
         setGroupName('');
         setSelectedCustomers([]);
-        alert('Group created successfully!');
+        setSnackbarMessage('Group created successfully!');
+        setSnackbarSeverity('success');
+        setSnackbarOpen(true);
       })
       .catch((error) => {
         console.error('Error creating group:', error.response?.data || error.message);
-        alert('Failed to create group');
+        setSnackbarMessage('Failed to create group');
+        setSnackbarSeverity('error');
+        setSnackbarOpen(true);
       });
+  };
+
+  const handleSnackbarClose = () => {
+    setSnackbarOpen(false);
   };
 
   return (
@@ -95,7 +116,6 @@ export default function CreateGroup() {
       <Typography variant="h5" gutterBottom>
         Create Group
       </Typography>
-
       <Box sx={{ mb: 2 }}>
         <TextField
           label="Group Name"
@@ -105,7 +125,6 @@ export default function CreateGroup() {
           onChange={(e) => setGroupName(e.target.value)}
         />
       </Box>
-
       <Box sx={{ mb: 2 }}>
         <Typography variant="subtitle1" fontWeight="bold">
           Selected Customers:
@@ -132,12 +151,11 @@ export default function CreateGroup() {
           ))
         )}
       </Box>
-
       <Button
         variant="contained"
         startIcon={<AddCircleOutlineIcon />}
         onClick={handleOpenDialog}
-        sx={{ mb: 2, marginRight:10 }}
+        sx={{ mb: 2, marginRight: 10 }}
       >
         Select Customers
       </Button>
@@ -149,7 +167,6 @@ export default function CreateGroup() {
       >
         Submit Group
       </Button>
-
       <Dialog open={openDialog} onClose={handleCloseDialog} maxWidth="sm" fullWidth>
         <DialogTitle>Select Customers</DialogTitle>
         <DialogContent>
@@ -169,7 +186,6 @@ export default function CreateGroup() {
               >
                 <Typography>{customer.name}</Typography>
                 <Typography>{customer.email}</Typography>
-
                 <Button
                   variant="contained"
                   size="small"
@@ -187,6 +203,17 @@ export default function CreateGroup() {
           </Button>
         </DialogActions>
       </Dialog>
+
+      <Snackbar
+        open={snackbarOpen}
+        autoHideDuration={3000}
+        onClose={handleSnackbarClose}
+        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+      >
+        <Alert onClose={handleSnackbarClose} severity={snackbarSeverity} sx={{ width: '100%' }}>
+          {snackbarMessage}
+        </Alert>
+      </Snackbar>
     </Box>
   );
 }
