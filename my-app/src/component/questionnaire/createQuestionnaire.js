@@ -20,6 +20,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import SingleChoiceRender from '../questionType/SingleChoiceRender';
 import MultipleChoiceRender from '../questionType/MultipleChoiceRender';
 import TextRender from '../questionType/TextRender';
+import { red } from '@mui/material/colors';
 
 export default function CreateQuestionnaire({ router }) {
   const [title, setTitle] = useState('');
@@ -149,7 +150,7 @@ export default function CreateQuestionnaire({ router }) {
         variant="contained"
         startIcon={<AddCircleOutlineIcon />}
         onClick={handleOpenDialog}
-        sx={{ mb: 2 }}
+        sx={{ mb: 2, backgroundColor: '#4B9B4B' }}
       >
         Add Question
       </Button>
@@ -186,7 +187,7 @@ export default function CreateQuestionnaire({ router }) {
 
       <Button
         variant="contained"
-        color="primary"
+        sx={{backgroundColor: '#4B9B4B'}}
         onClick={handleSubmitQuestionnaire}
       >
         Submit Questionnaire
@@ -237,11 +238,11 @@ export default function CreateQuestionnaire({ router }) {
                     placeholder={`Option ${idx + 1}`}
                   />
                   <IconButton onClick={() => handleRemoveOption(opt.id)} sx={{ ml: 1 }}>
-                    <DeleteIcon />
+                    <DeleteIcon sx={{ color: red[500] }} />
                   </IconButton>
                 </Box>
               ))}
-              <Button onClick={handleAddOption} sx={{ mt: 1 }}>
+              <Button onClick={handleAddOption} sx={{ mt: 1, backgroundColor:'#4B9B4B', color:"white" }}>
                 Add Option
               </Button>
             </Box>
@@ -249,7 +250,7 @@ export default function CreateQuestionnaire({ router }) {
         </DialogContent>
         <DialogActions>
           <Button onClick={handleCloseDialog} color="inherit">Cancel</Button>
-          <Button onClick={handleConfirmAdd} variant="contained">Add</Button>
+          <Button onClick={handleConfirmAdd} variant="contained" sx={{ backgroundColor:'#4B9B4B', color:"white" }}>Add</Button>
         </DialogActions>
       </Dialog>
     </Box>

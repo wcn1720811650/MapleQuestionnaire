@@ -134,7 +134,16 @@ export default function QuestionnaireList({
   return (
     <Box sx={{ p: 2 }}>
       {list.map((q) => (
-        <Paper key={q.id} sx={{ p: 2, mb: 2 }}>
+        <Paper 
+          key={q.id} 
+          sx={{ 
+            p: 2, 
+            mb: 2,
+            backgroundImage: 'linear-gradient(to right, #ffffff, #9AC89A, #4B9B4B)',
+            borderRadius: 2,
+            boxShadow: '0px 4px 6px rgba(0, 0, 0, 0.1)',
+            }}
+          >
           <Typography
             variant="subtitle1"
             fontWeight="bold"
@@ -240,7 +249,7 @@ export default function QuestionnaireList({
               )}
             </DialogContent>
             <DialogActions>
-              <Button onClick={handleCloseModal} variant="contained">
+              <Button onClick={handleCloseModal} variant="contained" sx={{ backgroundColor:'#4B9B4B' }}>
                 Close
               </Button>
             </DialogActions>

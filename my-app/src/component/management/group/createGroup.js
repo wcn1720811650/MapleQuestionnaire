@@ -155,7 +155,7 @@ export default function CreateGroup() {
         variant="contained"
         startIcon={<AddCircleOutlineIcon />}
         onClick={handleOpenDialog}
-        sx={{ mb: 2, marginRight: 10 }}
+        sx={{ mb: 2, marginRight: 10, backgroundColor:'#4B9B4B'}}
       >
         Select Customers
       </Button>
@@ -163,12 +163,12 @@ export default function CreateGroup() {
         variant="contained"
         color="primary"
         onClick={handleSubmitGroup}
-        sx={{ mb: 2 }}
+        sx={{ mb: 2, backgroundColor:'#4B9B4B' }}
       >
         Submit Group
       </Button>
       <Dialog open={openDialog} onClose={handleCloseDialog} maxWidth="sm" fullWidth>
-        <DialogTitle>Select Customers</DialogTitle>
+        <DialogTitle >Select Customers</DialogTitle>
         <DialogContent>
           {customers.length === 0 ? (
             <Typography>No customers available.</Typography>

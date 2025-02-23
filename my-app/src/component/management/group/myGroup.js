@@ -12,7 +12,6 @@ import {
   ListItem,
   ListItemText,
   IconButton,
-  Paper,
   Table,
   TableHead,
   TableBody,
@@ -21,6 +20,7 @@ import {
   Checkbox,
 } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
+import { red } from '@mui/material/colors';
 
 const MyGroup = () => {
   const [groups, setGroups] = useState([]);
@@ -162,9 +162,19 @@ const MyGroup = () => {
               divider
               button
               onClick={() => handleOpenDialog(group)}
+              sx={{ 
+                p: 2, 
+                mb: 2,
+                backgroundImage: 'linear-gradient(to right, #ffffff, #9AC89A, #4B9B4B)',
+                borderRadius: 2,
+                boxShadow: '0px 4px 6px rgba(0, 0, 0, 0.1)',
+                }}
             >
               <ListItemText
                 primary={group.name}
+                fontWeight="bold"
+                sx={{ cursor: 'pointer' }}
+                variant="subtitle1"
                 secondary={`Members: ${group.customers.length}`}
               />
               <IconButton
@@ -175,7 +185,7 @@ const MyGroup = () => {
                   handleDeleteGroup(group.id);
                 }}
               >
-                <DeleteIcon />
+                <DeleteIcon sx={{ color: red[500] }} />
               </IconButton>
             </ListItem>
           ))}

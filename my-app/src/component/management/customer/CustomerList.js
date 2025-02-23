@@ -113,7 +113,7 @@ const CustomerList = ({ open, onClose, onAddCustomer }) => {
           )}
         </DialogContent>
         <DialogActions>
-          <Button onClick={onClose}>Close</Button>
+          <Button onClick={onClose} color='white'>Close</Button>
         </DialogActions>
       </Dialog>
 

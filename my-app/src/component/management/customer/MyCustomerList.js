@@ -93,7 +93,7 @@ const MyCustomerList = ({ open, onClose, onSelect }) => {
 
   return (
     <Dialog open={open} onClose={onClose} fullWidth maxWidth="md">
-      <DialogTitle>Select Customers</DialogTitle>
+      <DialogTitle >Select Customers</DialogTitle>
       <DialogContent>
         {loading ? (
           <CircularProgress />
@@ -153,8 +153,8 @@ const MyCustomerList = ({ open, onClose, onSelect }) => {
         )}
       </DialogContent>
       <DialogActions>
-        <Button onClick={onClose}>Cancel</Button>
-        <Button variant="contained" onClick={handleConfirmSelection}>
+        <Button onClick={onClose} color='white'>Cancel</Button>
+        <Button variant="contained" onClick={handleConfirmSelection} sx={{ backgroundColor:'#4B9B4B' }}>
           Confirm Selection
         </Button>
       </DialogActions>
