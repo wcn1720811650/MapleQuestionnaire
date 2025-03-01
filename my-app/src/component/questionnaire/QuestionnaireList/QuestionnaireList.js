@@ -2,6 +2,7 @@ import React, { useEffect, useState, useCallback } from 'react';
 import axios from 'axios';
 import {
   Box,
+  Checkbox,
   Typography,
   Paper,
   Dialog,
@@ -11,11 +12,12 @@ import {
   Button,
   IconButton,
   Switch,
-  FormControlLabel 
+  FormControlLabel ,
 } from '@mui/material';
 import StarIcon from '@mui/icons-material/Star';
 import DeleteIcon from '@mui/icons-material/Delete';
 import RestoreIcon from '@mui/icons-material/Restore';
+import PublishIcon from '@mui/icons-material/Publish'
 import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
 import SingleChoiceRender from '../../questionType/SingleChoiceRender';
 import MultipleChoiceRender from '../../questionType/MultipleChoiceRender';
@@ -37,11 +39,15 @@ export default function QuestionnaireList({
   showRestore = false,
   showDeleteForever = false,
   disableSwitch = false,
+  groups = [], 
+  onPublish = () => {},
 }) {
   const [list, setList] = useState([]);
   const [openDialog, setOpenDialog] = useState(false);
   const [selectedQ, setSelectedQ] = useState(null);
-  
+  const [publishDialogOpen, setPublishDialogOpen] = useState(false);
+  const [selectedGroups, setSelectedGroups] = useState([]);
+  const [currentQId, setCurrentQId] = useState(null);
   const loadData = useCallback(async () => {
     try {
       const response = await axios.get('/api/questionnaires', {
@@ -126,6 +132,30 @@ export default function QuestionnaireList({
     setOpenDialog(false);
     setSelectedQ(null);
   }
+  const handleOpenPublish = (qid) => {
+    setCurrentQId(qid);
+    setSelectedGroups([]);
+    setPublishDialogOpen(true);
+  };
+
+  const handleClosePublish = () => {
+    setPublishDialogOpen(false);
+    setCurrentQId(null);
+  };
+
+  const handleGroupSelect = (groupId) => {
+    setSelectedGroups((prev) =>
+      prev.includes(groupId)
+        ? prev.filter(id => id !== groupId)
+        : [...prev, groupId]
+    );
+  };
+
+  const handlePublish = () => {
+    if (!currentQId || selectedGroups.length === 0) return;
+    onPublish(currentQId, selectedGroups);
+    handleClosePublish();
+  };
 
   if (list.length === 0) {
     return <Typography sx={{ m: 2 }}>No questionnaires found.</Typography>;
@@ -209,6 +239,12 @@ export default function QuestionnaireList({
                 <DeleteForeverIcon />
               </IconButton>
             )}
+            <IconButton
+              color="primary"
+              onClick={() => handleOpenPublish(q.id)}
+            >
+              <PublishIcon />
+            </IconButton>
           </Box>
         </Paper>
       ))}
@@ -255,6 +291,38 @@ export default function QuestionnaireList({
             </DialogActions>
           </>
         )}
+      </Dialog>
+      <Dialog
+        open={publishDialogOpen}
+        onClose={handleClosePublish}
+        maxWidth="sm"
+      >
+        <DialogTitle>Publish Questionnaire</DialogTitle>
+        <DialogContent>
+          <Typography>Select Groups:</Typography>
+          {groups.map(group => (
+            <FormControlLabel
+              key={group.id}
+              control={
+                <Checkbox
+                  checked={selectedGroups.includes(group.id)}
+                  onChange={() => handleGroupSelect(group.id)}
+                />
+              }
+              label={`${group.name} (${group.customers.length || 0})`}
+            />
+          ))}
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleClosePublish}>Cancel</Button>
+          <Button
+            onClick={handlePublish}
+            variant="contained"
+            disabled={selectedGroups.length === 0}
+          >
+            Publish
+          </Button>
+        </DialogActions>
       </Dialog>
     </Box>
   );
