@@ -42,6 +42,16 @@ module.exports = (sequelize, DataTypes) => {
       as: 'creator',
       constraints: false, 
     });
+    Questionnaire.associate = (models) => {
+      Questionnaire.belongsTo(models.User, {
+        foreignKey: 'userId',
+        as: 'publisher',
+      });
+    };
+    Questionnaire.hasMany(models.QuestionnaireAccess, {
+      foreignKey: 'questionnaireId',
+      as: 'accesses',
+    });
   };
 
   return Questionnaire;

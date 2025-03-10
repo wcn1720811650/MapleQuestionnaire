@@ -31,7 +31,21 @@ import Customer from "../component/management/customer/customer";
 import Report from '../component/analytics/report';
 import Chatbot from '../component/Chatbot'; 
 import CreateGroup from '../component/management/group/createGroup';
+import UserQuestionnaire from '../component/questionnaire/UserQuestionnaires'
 
+export default function DashboardLayoutBasic() {
+
+  const router = useDemoRouter('/myQuestionnaires');
+  const demoWindow = typeof window !== 'undefined' ? window : undefined;
+  const [role, setRole] = useState('');
+
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      setRole(payload.role);
+    }
+  }, []);
 const NAVIGATION = [
   {
     kind: 'header',
@@ -67,6 +81,13 @@ const NAVIGATION = [
     title: 'Public Questionnaires',
     icon: <LibraryBooksIcon />,
   },
+  ...(role !== 'manager' ? [
+    {
+      segment: 'userQuestionnaires',
+      title: 'User Questionnaires',
+      icon: <LibraryBooksIcon />,
+    }
+  ] : []),
   {
     kind: 'divider',
   },
@@ -317,19 +338,6 @@ function CustomAppTitle() {
   );
 }
 
-export default function DashboardLayoutBasic() {
-
-  const router = useDemoRouter('/myQuestionnaires');
-  const demoWindow = typeof window !== 'undefined' ? window : undefined;
-  const [role, setRole] = useState('');
-
-  useEffect(() => {
-    const token = localStorage.getItem('token');
-    if (token) {
-      const payload = JSON.parse(atob(token.split('.')[1]));
-      setRole(payload.role);
-    }
-  }, []);
 
   return (
     <AppProvider
@@ -356,7 +364,7 @@ export default function DashboardLayoutBasic() {
           {router.pathname === '/customer' && <Customer role={role} />}
           {router.pathname === '/report' && <Report />}
           {router.pathname === '/myGroup' && <MyGroup />}
-
+          {router.pathname === '/userQuestionnaires' && <UserQuestionnaire />}
         </PageContainer>
       </DashboardLayout>
     </AppProvider>

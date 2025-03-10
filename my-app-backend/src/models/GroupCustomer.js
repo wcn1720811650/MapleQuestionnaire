@@ -19,5 +19,21 @@ module.exports = (sequelize, DataTypes) => {
     }
   );
 
+  GroupCustomer.associate = (models) => {
+    GroupCustomer.belongsTo(models.Group, {
+      foreignKey: 'groupId',
+      targetKey: 'id',
+      as: 'group', 
+    });
+
+    GroupCustomer.belongsTo(models.Customer, {
+      foreignKey: 'customerId',
+      targetKey: 'id',
+      as: 'customer',
+    });
+  };
+
+  
+
   return GroupCustomer;
 };

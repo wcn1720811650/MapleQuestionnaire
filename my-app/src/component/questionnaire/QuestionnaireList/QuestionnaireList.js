@@ -41,6 +41,7 @@ export default function QuestionnaireList({
   disableSwitch = false,
   groups = [], 
   onPublish = () => {},
+  showPublish = false
 }) {
   const [list, setList] = useState([]);
   const [openDialog, setOpenDialog] = useState(false);
@@ -239,12 +240,15 @@ export default function QuestionnaireList({
                 <DeleteForeverIcon />
               </IconButton>
             )}
-            <IconButton
-              color="primary"
-              onClick={() => handleOpenPublish(q.id)}
-            >
-              <PublishIcon />
-            </IconButton>
+            {showPublish && (
+              <IconButton
+                color="primary"
+                onClick={() => handleOpenPublish(q.id)}
+              >
+                <PublishIcon />
+              </IconButton>
+            )}
+            
           </Box>
         </Paper>
       ))}

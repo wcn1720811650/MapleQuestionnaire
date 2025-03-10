@@ -7,8 +7,11 @@ const {
   deleteQuestionnaire, 
   restoreQuestionnaire, 
   deleteForever,
-  updatePublicStatus
+  updatePublicStatus,
+  publishQuestionnaire,
+  getUserQuestionnaires
 } = require('../controllers/questionnaireController');
+const authMiddleware = require('../middleware/authMiddleware');
 
 const router = express.Router();
 
@@ -20,5 +23,6 @@ router.post('/:id/delete', deleteQuestionnaire);
 router.post('/:id/restore', restoreQuestionnaire);
 router.delete('/:id', deleteForever);
 router.post('/:id/public', updatePublicStatus);
-
+router.post('/publish',authMiddleware, publishQuestionnaire);
+router.get('/user-questionnaires', getUserQuestionnaires);
 module.exports = router;

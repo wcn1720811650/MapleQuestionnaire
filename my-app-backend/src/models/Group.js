@@ -26,10 +26,16 @@ module.exports = (sequelize, DataTypes) => {
 
   Group.associate = (models) => {
     Group.belongsToMany(models.Customer, {
-      through: 'GroupCustomer', 
+      through: models.GroupCustomer, 
       as: 'customers',
       foreignKey: 'groupId',
+      otherKey: 'customerId',
     });
+    Group.belongsTo(models.User, {
+      foreignKey: 'userId',
+      as: 'owner',
+    });
+    
   };
 
   return Group;

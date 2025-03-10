@@ -27,6 +27,7 @@ exports.createQuestionnaire = async (req, res) => {
       title,
       questions,
       userId,
+      isPublic: false,
     });
 
     res.status(201).json({
@@ -131,3 +132,92 @@ exports.updatePublicStatus = async (req, res)=>{
     res.status(500).json({ error: 'Failed to update public status', details: error.message });
   }
 }
+
+exports.publishQuestionnaire = async (req, res) => {
+  const { questionnaireId, groupIds } = req.body;
+  const userId = req.user.id; 
+
+  try {
+    const questionnaire = await db.Questionnaire.findByPk(questionnaireId, {
+      where: { userId }, 
+      include: [{ model: db.User, as: 'creator' }], 
+    });
+    if (!questionnaire) {
+      return res.status(403).json({ error: 'No permission to operate this questionnaire' });
+    }
+
+    const validGroups = await db.Group.findAll({
+      where: { id: groupIds, userId }, 
+      include: [ 
+        {
+          model: db.Customer,
+          as: 'customers', 
+          through: db.GroupCustomer,
+          attributes: ['id'], 
+        },
+      ],
+    });    
+
+    const memberUserIds = validGroups.flatMap(group =>
+      group.customers?.map(customer => customer.id) || []
+    );
+    const uniqueMembers = Array.from(new Set(memberUserIds));
+
+    if (uniqueMembers.length === 0) {
+      return res.status(400).json({ error: 'There are no valid members in the selected group' });
+    }
+
+    await db.sequelize.transaction(async (t) => {
+      await db.QuestionnaireAccess.destroy({
+        where: { questionnaireId },
+        transaction: t,
+      });
+
+      const accessRecords = uniqueMembers.map(userId => ({
+        userId,
+        questionnaireId,
+        expiresAt: null,
+      }));
+
+      await db.QuestionnaireAccess.bulkCreate(accessRecords, { transaction: t });
+
+
+    });
+    
+    res.status(201).json({
+      success: true,
+      message: 'Questionnaire published successfully',
+      data: {
+        questionnaireId,
+        publishedTo: validGroups.map(g => ({
+          groupId: g.id,
+          groupName: g.name,
+          memberCount: g.customers.length,
+        })),
+        totalMembers: uniqueMembers.length,
+      },
+    });
+  } catch (error) {
+    console.error('Publishing failed:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
+exports.getUserQuestionnaires = async (req, res) => {
+  const userId = req.user.id;
+  try {
+    const questionnaires = await db.Questionnaire.findAll({
+      include: [ 
+        {
+          model: db.QuestionnaireAccess,
+          as:'accesses',
+          where: { userId }, 
+          required: true 
+        }
+      ],
+    });
+    res.status(200).json(questionnaires);
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to obtain questionnaire' });
+  }
+};
