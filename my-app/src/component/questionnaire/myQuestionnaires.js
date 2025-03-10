@@ -51,7 +51,7 @@ export default function MyQuestionnaires() {
   const handlePublish = async (qid, groupIds) => {
     try {
       if (!Number.isInteger(qid) || !Array.isArray(groupIds) || groupIds.length === 0) {
-        alert('问卷ID和群组ID必须为有效的整数数组');
+        alert('Questionnaire ID and group ID must be valid integer arrays');
         return;
       }
   
@@ -67,13 +67,13 @@ export default function MyQuestionnaires() {
   
       console.log('Publish success:', response.data);
       await fetchGroups();
-      alert('问卷发布成功');
+      alert('Questionnaire published successfully');
     } catch (error) {
-      let errorMessage = '发布失败，请稍后再试';
+      let errorMessage = 'Publishing failed, please try again later';
       if (error.response) {
         errorMessage = error.response.data?.error || error.response.statusText || errorMessage;
       } else if (error.request) {
-        errorMessage = '无法连接到服务器，请检查网络';
+        errorMessage = 'Unable to connect to the server, please check the network';
       } else {
         errorMessage = error.message || errorMessage;
       }
