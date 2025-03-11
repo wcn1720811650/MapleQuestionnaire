@@ -1,14 +1,30 @@
-import { TextField } from '@mui/material';
+import React, { useState } from 'react';
+import { Box, TextField, Typography } from '@mui/material';
 
-function TextRender({ question }) {
+export default function TextRender({ question, onAnswer, isReadOnly }) {
+  const [text, setText] = useState(question.answer || '');
+
+  const handleChange = (e) => {
+    const value = e.target.value;
+    setText(value);
+    onAnswer(question.id, value); 
+  };
+
   return (
-    <TextField
-      variant="outlined"
-      size="small"
-      fullWidth
-      placeholder="Fill in your answer..."
-    />
+    <Box>
+      <Typography variant="body1" sx={{ mb: 1 }}>
+        {question.text}
+      </Typography>
+      <TextField
+        value={text}
+        onChange={handleChange}
+        multiline
+        rows={4}
+        fullWidth
+        placeholder="Please enter your answer..."
+        disabled={isReadOnly}
+        sx={{ mt: 1 }}
+      />
+    </Box>
   );
 }
-
-export default TextRender;

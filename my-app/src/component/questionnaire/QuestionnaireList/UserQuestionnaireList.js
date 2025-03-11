@@ -13,6 +13,7 @@ import {
 import SingleChoiceRender from '../../questionType/SingleChoiceRender';
 import MultipleChoiceRender from '../../questionType/MultipleChoiceRender';
 import TextRender from '../../questionType/TextRender';
+import { Link } from 'react-router-dom';
 
 export default function UserQuestionnaireList({ list = [] }) {
   const [openDialog, setOpenDialog] = React.useState(false);
@@ -45,6 +46,7 @@ export default function UserQuestionnaireList({ list = [] }) {
             boxShadow: '0px 4px 6px rgba(0, 0, 0, 0.1)',
           }}
         >
+          
           <Typography
             variant="subtitle1"
             fontWeight="bold"
@@ -56,6 +58,16 @@ export default function UserQuestionnaireList({ list = [] }) {
           <Typography variant="body2" sx={{ mb: 1 }}>
             Questions: {q.questions?.length || 0}
           </Typography>
+          <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 1 }}>
+            <Button 
+              component={Link} 
+              to={`/quiz/${q.id}`} 
+              variant="contained" 
+              color="primary"
+            >
+              开始答题
+            </Button>
+          </Box>
         </Paper>
       ))}
       <Dialog open={openDialog} onClose={handleCloseModal} maxWidth="md" fullWidth>

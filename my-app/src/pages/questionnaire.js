@@ -32,6 +32,7 @@ import Report from '../component/analytics/report';
 import Chatbot from '../component/Chatbot'; 
 import CreateGroup from '../component/management/group/createGroup';
 import UserQuestionnaire from '../component/questionnaire/UserQuestionnaires'
+import QuestionnaireQuiz from "../component/questionnaire/QuestionnaireQuiz"
 
 export default function DashboardLayoutBasic() {
 
@@ -365,6 +366,7 @@ function CustomAppTitle() {
           {router.pathname === '/report' && <Report />}
           {router.pathname === '/myGroup' && <MyGroup />}
           {router.pathname === '/userQuestionnaires' && <UserQuestionnaire />}
+          {router.pathname === '/quiz/:id' && <QuestionnaireQuiz />}
         </PageContainer>
       </DashboardLayout>
     </AppProvider>
