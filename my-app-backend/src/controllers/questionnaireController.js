@@ -221,3 +221,69 @@ exports.getUserQuestionnaires = async (req, res) => {
     res.status(500).json({ error: 'Failed to obtain questionnaire' });
   }
 };
+
+exports.getQuestionnaireById = async (req, res) => {
+  const { id } = req.params;
+  const userId = req.user.id;
+
+  try {
+    const questionnaire = await db.Questionnaire.findByPk(id, {
+      include: [
+        {
+          model: db.QuestionnaireAccess,
+          as:'accesses',
+          where: { userId },
+          required: true, 
+        },
+      ],
+      attributes: { exclude: ['isDeleted', 'isPublic'] }, 
+    });
+
+    if (!questionnaire) {
+      return res.status(403).json({ error: 'No access to this questionnaire' });
+    }
+
+    res.status(200).json(questionnaire);
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to obtain questionnaire' });
+  }
+};
+
+
+exports.submitAnswers = async (req, res) => {
+  const questionnaireId = req.params.id; 
+  const { answers } = req.body;
+  const userId = req.user.id; 
+
+  try {
+    const questionnaire = await db.Questionnaire.findByPk(questionnaireId, {
+      include: [{
+        model: db.QuestionnaireAccess,
+        as:'accesses',
+        where: { userId },
+        required: true
+      }],
+      attributes: { exclude: ['isDeleted', 'isPublic'] },
+    });
+
+    if (!questionnaire) {
+      return res.status(403).json({ error: 'You are not authorized to submit this questionnaire' });
+    }
+
+    const userAnswers = Object.entries(answers).map(([questionIdStr, answer]) => ({
+      questionnaireId,
+      questionId:parseInt(questionIdStr),
+      userId,
+      answer: JSON.stringify(answer),
+    }));
+
+    await db.sequelize.transaction(async (t) => {
+      await db.UserAnswer.bulkCreate(userAnswers, { transaction: t });
+    });
+
+    res.status(200).json({ success: true });
+  } catch (error) {
+    console.error('Failed to submit answer:', error);
+    res.status(500).json({ error: 'Submission failed' });
+  }
+};

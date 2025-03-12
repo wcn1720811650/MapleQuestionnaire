@@ -4,9 +4,11 @@ import { FormControl, FormLabel, RadioGroup, FormControlLabel, Radio } from '@mu
 
 export default function SingleChoiceRender({ question, onAnswer }) {
   const handleChange = (e) => {
-    const value = String(e.target.value);
-    onAnswer(question.id, value); 
+    const selectedId = e.target.value;
+    onAnswer(question.id, selectedId); 
+
   };
+  
 
   return (
     <FormControl fullWidth component="fieldset">
@@ -20,7 +22,7 @@ export default function SingleChoiceRender({ question, onAnswer }) {
         {question.options.map((option) => (
           <FormControlLabel
             key={option.id}
-            value={String(option.value)}
+            value={option.text}
             control={<Radio />}
             label={option.text}
             sx={{ '&:not(:last-child)': { mb: 1 } }}

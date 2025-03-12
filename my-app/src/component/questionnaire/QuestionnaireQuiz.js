@@ -29,10 +29,10 @@ export default function QuestionnaireQuiz() {
     fetchQuestionnaire();
   }, [id, navigate]);
 
-  const handleAnswer = (questionId, answer) => {
+  const handleAnswer = (questionId, answerId) => {
     setAnswers(prev => ({
       ...prev,
-      [questionId]: answer,
+      [questionId]: answerId
     }));
   };
 
@@ -63,20 +63,25 @@ export default function QuestionnaireQuiz() {
 
       {questionnaire.questions.map((question) => (
         <Box key={question.id} mb={3} sx={{ border: '1px solid #eee', p: 2 }}>
-            <Typography variant="subtitle1">{question.text}</Typography>
             {question.type === 'singleChoice' && (
-            <SingleChoiceRender 
-                question={question} 
+              <SingleChoiceRender
+                key={question.id}
+                question={{
+                  ...question,
+                  answer: answers[question.id] || '',
+                }} 
                 onAnswer={handleAnswer} 
-                isReadOnly={false} 
-            />
+              />
             )}
             {question.type === 'multipleChoice' && (
-            <MultipleChoiceRender 
-                question={question} 
-                onAnswer={handleAnswer} 
-                isReadOnly={false} 
-            />
+              <MultipleChoiceRender 
+                key={question.id}
+                question={{
+                  ...question,
+                  answer: answers[question.id] || []
+                }}
+                onAnswer={handleAnswer}
+              />
             )}
             {question.type === 'text' && (
             <TextRender 
