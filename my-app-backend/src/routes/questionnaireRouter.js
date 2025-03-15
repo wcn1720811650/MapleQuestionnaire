@@ -12,7 +12,8 @@ const {
   getUserQuestionnaires,
   getQuestionnaireById,
   submitAnswers,
-  getSubmissionStatus
+  getSubmissionStatus,
+  getUserAnswers
 } = require('../controllers/questionnaireController');
 const authMiddleware = require('../middleware/authMiddleware');
 
@@ -32,5 +33,6 @@ router.get('/', getAllQuestionnaires);
 router.get('/:id', getQuestionnaireById);            
 router.post('/:id/submit', authMiddleware, submitAnswers);
 router.get('/:id/submission-status', authMiddleware, getSubmissionStatus);
+router.get('/:id/submitted-answers',authMiddleware,getUserAnswers);
 
 module.exports = router;

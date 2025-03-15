@@ -318,3 +318,31 @@ exports.getSubmissionStatus = async (req, res) => {
     res.status(500).json({ error: 'Internal server error' });
   }
 };
+
+exports.getUserAnswers = async (req, res) => {
+  const { id: questionnaireId } = req.params;
+  const userId = req.user.id;
+
+  try {
+    const answers = await db.UserAnswer.findAll({
+      where: {
+        questionnaireId,
+        userId
+      },
+      attributes: ['questionId', 'answer']
+    });
+
+    const formattedAnswers = answers.reduce((acc, curr) => {
+      acc[curr.questionId] = JSON.parse(curr.answer);
+      return acc;
+    }, {});
+
+    res.status(200).json({
+      questionnaireId,
+      answers: formattedAnswers
+    });
+  } catch (error) {
+    console.error('Error fetching user answers:', error);
+    res.status(500).json({ error: 'Failed to get user answers' });
+  }
+};

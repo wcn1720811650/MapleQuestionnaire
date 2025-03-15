@@ -33,12 +33,13 @@ import Chatbot from '../component/Chatbot';
 import CreateGroup from '../component/management/group/createGroup';
 import UserQuestionnaire from '../component/questionnaire/UserQuestionnaires'
 import QuestionnaireQuiz from "../component/questionnaire/QuestionnaireQuiz"
+import ViewUserAnswers from '../component/questionnaire/viewUserAnswers';
 
 export default function DashboardLayoutBasic() {
 
-  const router = useDemoRouter('/myQuestionnaires');
   const demoWindow = typeof window !== 'undefined' ? window : undefined;
   const [role, setRole] = useState('');
+  const router = useDemoRouter(role === 'manager' ? '/myQuestionnaires' : '/userQuestionnaires')
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -48,6 +49,7 @@ export default function DashboardLayoutBasic() {
     }
   }, []);
 const NAVIGATION = [
+  ...(role === 'manager' ? [
   {
     kind: 'header',
     title: 'Actions',
@@ -72,16 +74,17 @@ const NAVIGATION = [
     title: 'Star Questionnaires',
     icon: <StarIcon />,
   },
-  {
+    {
     segment: 'recycleBin',
     title: 'Recycle Bin',
     icon: <DeleteIcon />,
-  },
-  {
+    },
+    {
     segment: 'publicQuestionnaires',
     title: 'Public Questionnaires',
     icon: <LibraryBooksIcon />,
-  },
+    },
+  ] : []),
   ...(role !== 'manager' ? [
     {
       segment: 'userQuestionnaires',
@@ -92,6 +95,7 @@ const NAVIGATION = [
   {
     kind: 'divider',
   },
+  ...(role === 'manager' ? [
   {
     kind: 'header',
     title: 'Management',
@@ -111,9 +115,15 @@ const NAVIGATION = [
     title: 'My Groups',
     icon: <GroupIcon />,
   },
+  ]: []),
   {
     kind: 'header',
     title: 'Analytics',
+  },
+  {
+    segment: 'view User Answers',
+    title: 'ViewUserAnswers',
+    icon: <BarChartIcon />,
   },
   {
     segment: 'report',
@@ -367,6 +377,8 @@ function CustomAppTitle() {
           {router.pathname === '/myGroup' && <MyGroup />}
           {router.pathname === '/userQuestionnaires' && <UserQuestionnaire />}
           {router.pathname === '/quiz/:id' && <QuestionnaireQuiz />}
+          {router.pathname === '/viewUserAnswers' && <ViewUserAnswers />}
+
         </PageContainer>
       </DashboardLayout>
     </AppProvider>
