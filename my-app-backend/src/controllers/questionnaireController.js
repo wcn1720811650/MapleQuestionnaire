@@ -279,11 +279,42 @@ exports.submitAnswers = async (req, res) => {
 
     await db.sequelize.transaction(async (t) => {
       await db.UserAnswer.bulkCreate(userAnswers, { transaction: t });
+      await db.QuestionnaireAccess.update(
+        { isSubmitted: true },
+        { where: { userId, questionnaireId }, transaction: t }
+      );
     });
 
     res.status(200).json({ success: true });
   } catch (error) {
     console.error('Failed to submit answer:', error);
     res.status(500).json({ error: 'Submission failed' });
+  }
+};
+
+exports.getSubmissionStatus = async (req, res) => {
+  const { id } = req.params;
+  const userId = req.user.id;
+
+  try {
+    const access = await db.QuestionnaireAccess.findOne({
+      where: {
+        questionnaireId: id,
+        userId
+      },
+      attributes: ['isSubmitted']
+    });
+
+    if (!access) {
+      return res.status(404).json({ error: 'Access record not found' });
+    }
+
+    res.status(200).json({
+      questionnaireId: id,
+      isSubmitted: access.isSubmitted
+    });
+  } catch (error) {
+    console.error('Error fetching submission status:', error);
+    res.status(500).json({ error: 'Internal server error' });
   }
 };

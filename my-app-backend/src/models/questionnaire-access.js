@@ -14,6 +14,10 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.DATE, 
         allowNull: true,
       },
+      isSubmitted: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: false
+      }
     }, {
       tableName: 'questionnaire_access',
       timestamps: true,
