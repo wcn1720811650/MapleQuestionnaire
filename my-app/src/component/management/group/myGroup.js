@@ -21,6 +21,8 @@ import {
 } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { red } from '@mui/material/colors';
+import AssignmentTurnedInIcon from '@mui/icons-material/AssignmentTurnedIn';
+import { Link } from 'react-router-dom';
 
 const MyGroup = () => {
   const [groups, setGroups] = useState([]);
@@ -148,8 +150,24 @@ const MyGroup = () => {
   return (
     <Box sx={{ p: 3 }}>
       <Typography variant="h4" gutterBottom>
-        My Groups
+        My Groups 
       </Typography>
+      <Button 
+          component={Link}
+          to="/submissions"
+          variant="contained"
+          color="success"
+          startIcon={<AssignmentTurnedInIcon />}
+          sx={{ 
+            mr: 2,
+            px: 3,
+            borderRadius: 1,
+            textTransform: 'none',
+            fontSize: '0.875rem'
+          }}
+        >
+          View submission history
+        </Button>
       {groups.length === 0 ? (
         <Typography variant="body1" color="text.secondary">
           You have no groups yet.

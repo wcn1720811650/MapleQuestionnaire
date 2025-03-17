@@ -10,6 +10,7 @@ const userRoutes = require('./routes/userRoutes')
 const sequelize = require('./config/database');
 const chatbotRoutes = require('./routes/chatbotRoutes')
 const groupRoutes = require('./routes/groupRoutes')
+const consultantRoutes = require('./routes/consultantRoutes') 
 const app = express();
 const port = 3001;
 
@@ -51,7 +52,7 @@ app.use('/api/questionnaires', questionnaireRouter);
 app.use('/auth', authRoutes); 
 app.use('/api', userRoutes, chatbotRoutes); 
 app.use('/api/groups', groupRoutes); 
-
+app.use('/api/consultant', consultantRoutes);
 
 app.use((err, req, res, next) => {
   console.error(err.stack);

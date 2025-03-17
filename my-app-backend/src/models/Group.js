@@ -35,7 +35,6 @@ module.exports = (sequelize, DataTypes) => {
       foreignKey: 'userId',
       as: 'owner',
     });
-    
   };
 
   return Group;

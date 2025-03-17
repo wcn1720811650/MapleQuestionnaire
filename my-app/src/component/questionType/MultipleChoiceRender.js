@@ -2,7 +2,7 @@
 import React from 'react';
 import { FormControl, FormLabel, FormGroup, FormControlLabel, Checkbox } from '@mui/material';
 
-export default function MultipleChoiceRender({ question, onAnswer }) {
+export default function MultipleChoiceRender({ question, onAnswer,isReadOnly }) {
   const selectedTexts = new Set(
     Array.isArray(question.answer) 
       ? question.answer 
@@ -32,6 +32,7 @@ export default function MultipleChoiceRender({ question, onAnswer }) {
               <Checkbox
                 checked={selectedTexts.has(option.text)}
                 onChange={() => handleChange(option.text)}
+                disabled={isReadOnly}
               />
             }
             label={option.text}

@@ -2,7 +2,7 @@
 import React from 'react';
 import { FormControl, FormLabel, RadioGroup, FormControlLabel, Radio } from '@mui/material';
 
-export default function SingleChoiceRender({ question, onAnswer }) {
+export default function SingleChoiceRender({ question, onAnswer,isReadOnly }) {
   const handleChange = (e) => {
     const selectedId = e.target.value;
     onAnswer(question.id, selectedId); 
@@ -18,6 +18,7 @@ export default function SingleChoiceRender({ question, onAnswer }) {
       <RadioGroup
         value={question.answer || ''}
         onChange={handleChange}
+        
       >
         {question.options.map((option) => (
           <FormControlLabel
@@ -25,6 +26,7 @@ export default function SingleChoiceRender({ question, onAnswer }) {
             value={option.text}
             control={<Radio />}
             label={option.text}
+            disabled={isReadOnly}
             sx={{ '&:not(:last-child)': { mb: 1 } }}
           />
         ))}
