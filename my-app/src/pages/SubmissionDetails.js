@@ -1,3 +1,4 @@
+// src/pages/SubmissionDetails.js
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useParams, useNavigate } from 'react-router-dom';
@@ -8,7 +9,9 @@ import {
   Button,
   CircularProgress,
   Alert,
-  Stack
+  Stack,
+  TextField,
+  Snackbar
 } from '@mui/material';
 import SingleChoiceRender from '../component/questionType/SingleChoiceRender';
 import MultipleChoiceRender from '../component/questionType/MultipleChoiceRender';
@@ -17,7 +20,7 @@ import TextRender from '../component/questionType/TextRender';
 const validateResponse = (response) => {
   if (!response?.success) throw new Error('API request failed');
   
-  const { questionnaire, answers } = response.data;
+  const { questionnaire, answers, suggestion } = response.data;
   
   if (!questionnaire?.title) throw new Error('Invalid questionnaire data');
   if (!Array.isArray(questionnaire.questions)) throw new Error('Invalid questions format');
@@ -28,7 +31,8 @@ const validateResponse = (response) => {
       ...questionnaire,
       createdBy: String(questionnaire.createdBy || '')
     },
-    answers
+    answers,
+    suggestion: suggestion || ''
   };
 };
 
@@ -40,6 +44,9 @@ export default function SubmissionDetails() {
     error: null,
     data: null
   });
+  const [suggestion, setSuggestion] = useState('');
+  const [submitting, setSubmitting] = useState(false);
+  const [snackbar, setSnackbar] = useState(null);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -70,6 +77,7 @@ export default function SubmissionDetails() {
             }
           }
         });
+        setSuggestion(validatedData.suggestion);
       } catch (err) {
         if (axios.isCancel(err)) return;
         
@@ -93,6 +101,43 @@ export default function SubmissionDetails() {
 
     return () => controller.abort();
   }, [userId, questionnaireId]);
+
+  const handleSubmitSuggestion = async () => {
+    if (!suggestion.trim()) {
+      setSnackbar({ message: 'Suggestion cannot be empty', severity: 'warning' });
+      return;
+    }
+    
+    setSubmitting(true);
+    try {
+      await axios.post(
+        `/api/consultant/submissions/${userId}/${questionnaireId}/suggestions`,
+        { suggestion },
+        {
+          headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+        }
+      );
+      
+      setSnackbar({ 
+        message: 'Treatment suggestion saved successfully', 
+        severity: 'success' 
+      });
+      setState(prev => ({
+        ...prev,
+        data: {
+          ...prev.data,
+          suggestion: suggestion
+        }
+      }));
+    } catch (err) {
+      setSnackbar({ 
+        message: `Failed to save suggestion: ${err.response?.data?.error || err.message}`, 
+        severity: 'error' 
+      });
+    } finally {
+      setSubmitting(false);
+    }
+  };
 
   const renderContent = () => {
     if (state.loading) {
@@ -260,6 +305,50 @@ export default function SubmissionDetails() {
               </Box>
             </Box>
           ))}
+
+          <Box sx={{ mt: 6 }}>
+            <Typography variant="h5" gutterBottom>
+              Treatment Suggestion
+            </Typography>
+            
+            <TextField
+              fullWidth
+              multiline
+              rows={4}
+              value={suggestion}
+              onChange={(e) => setSuggestion(e.target.value)}
+              placeholder="Enter your professional treatment recommendation..."
+              variant="outlined"
+              sx={{ mb: 3 }}
+              InputProps={{
+                style: { fontFamily: 'Arial', fontSize: '1rem' }
+              }}
+            />
+            
+            <Stack direction="row" spacing={2} alignItems="center">
+              <Button
+                variant="contained"
+                color="primary"
+                onClick={handleSubmitSuggestion}
+                disabled={submitting}
+                startIcon={submitting && <CircularProgress size={20} />}
+                sx={{ minWidth: 120 }}
+              >
+                {submitting ? 'Saving...' : 'Submit Suggestion'}
+              </Button>
+
+              {state.data?.suggestion && (
+                <Paper elevation={1} sx={{ p: 2, mt: 3, backgroundColor: '#f8fff0', flex: 1 }}>
+                  <Typography variant="subtitle1" gutterBottom>
+                    Current Recommendation:
+                  </Typography>
+                  <Typography variant="body1" whiteSpace="pre-line">
+                    {state.data.suggestion}
+                  </Typography>
+                </Paper>
+              )}
+            </Stack>
+          </Box>
         </Paper>
       </>
     );
@@ -273,6 +362,21 @@ export default function SubmissionDetails() {
       minHeight: '100vh'
     }}>
       {renderContent()}
+      
+      <Snackbar
+        open={!!snackbar}
+        autoHideDuration={6000}
+        onClose={() => setSnackbar(null)}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+      >
+        <Alert 
+          onClose={() => setSnackbar(null)} 
+          severity={snackbar?.severity}
+          sx={{ width: '100%' }}
+        >
+          {snackbar?.message}
+        </Alert>
+      </Snackbar>
     </Box>
   );
 }

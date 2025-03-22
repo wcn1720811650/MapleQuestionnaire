@@ -200,3 +200,63 @@ exports.getSubmissionDetails = async (req, res) => {
       });
     }
   };
+
+  exports.createSuggestion = async (req, res) => {
+  try {
+    const { userId, questionnaireId } = req.params;
+    const { suggestion } = req.body;
+    const consultantId = req.user.id;
+
+    const validAccess = await db.Group.findOne({
+      where: { userId: consultantId },
+      include: [{
+        model: db.Customer,
+        as: 'customers',
+        where: { id: userId },
+        required: true,
+        through: { attributes: [] }
+      }]
+    });
+
+    if (!validAccess) {
+      return res.status(403).json({ 
+        success: false,
+        error: 'No permission to submit suggestions'
+      });
+    }
+
+    const questionnaireExists = await db.Questionnaire.findOne({
+      where: { id: questionnaireId }
+    });
+
+    if (!questionnaireExists) {
+      return res.status(404).json({
+        success: false,
+        error: 'Questionnaire not found'
+      });
+    }
+
+    const newSuggestion = await db.Suggestion.create({
+      content: suggestion,
+      userId,
+      questionnaireId,
+      consultantId
+    });
+
+    res.status(201).json({
+      success: true,
+      data: {
+        id: newSuggestion.id,
+        content: newSuggestion.content,
+        createdAt: newSuggestion.createdAt
+      }
+    });
+
+  } catch (error) {
+    console.error('[ERROR] Failed to create suggestion:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to save treatment suggestion'
+    });
+  }
+};
