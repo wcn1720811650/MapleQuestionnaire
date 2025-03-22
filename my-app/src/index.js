@@ -9,6 +9,8 @@ import DashboardLayoutBasic from "./pages/questionnaire";
 import QuestionnaireQuiz from "./component/questionnaire/QuestionnaireQuiz"
 import ConsultantDashboard from "./pages/ConsultantDashboard";
 import SubmissionDetails from "./pages/SubmissionDetails";
+import UserSuggestions from "./pages/UserSuggestions";
+
 const App = () => {
   return (
     <ThemeProvider theme={theme}>
@@ -20,7 +22,7 @@ const App = () => {
           <Route path="/quiz/:id" element={<QuestionnaireQuiz/>} />
           <Route path="/submissions" element={<ConsultantDashboard/>} />
           <Route path="/submissions/:userId/:questionnaireId" element={<SubmissionDetails/>} />
-
+          <Route path="/user/suggestions" element={<UserSuggestions />} />
         </Routes>
       </BrowserRouter>
     </ThemeProvider>

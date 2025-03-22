@@ -27,6 +27,11 @@ module.exports = (sequelize, DataTypes) => {
       constraints: true, 
     });
 
+    Customer.belongsTo(models.User, {
+      foreignKey: 'ownerId', 
+      as: 'owner'
+    });
+
     Customer.belongsToMany(models.Group, {
       through: models.GroupCustomer, 
       as: 'groups', 

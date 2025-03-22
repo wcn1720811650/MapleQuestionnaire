@@ -4,6 +4,13 @@ const db = require('../models');
 exports.createGroup = async (req, res) => {
   try {
     const { name, customerIds } = req.body;
+    const customer = await db.Customer.findAll({
+      where: {
+        customerId: customerIds 
+      },
+      attributes: ['id', 'customerId'], 
+      raw: true 
+    });
     
     if (!name || typeof name !== 'string' || name.trim() === '') {
       return res.status(400).json({ error: 'Group name is required and must be a non-empty string' });
@@ -13,8 +20,17 @@ exports.createGroup = async (req, res) => {
     }
 
     const customers = await db.Customer.findAll({
-      
+      where: {
+        id: customer.map(c => c.id),
+        ownerId: req.user.id
+      },
+      include: [{
+        model: db.User,
+        as: 'customerInfo',
+        attributes: ['name']
+      }]
     });
+     
 
     if (customers.length !== customerIds.length) {
       return res.status(400).json({ error: 'One or more customers do not exist or do not belong to you' });

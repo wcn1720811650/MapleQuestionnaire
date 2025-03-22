@@ -1,5 +1,5 @@
 const db = require('../models');
-const { Op } = require('sequelize');
+const { Op, where } = require('sequelize');
 
 module.exports = {
   async getUserInfo(req, res) {
@@ -138,4 +138,104 @@ module.exports = {
       res.status(500).json({ error: 'Failed to delete customer' });
     }
   },
+  async getUserSuggestions(req, res) {
+    const id = req.user.id;
+    try {
+      const customers = await db.Customer.findOne({
+        where:{customerId: id},
+        attributes: ['id', 'ownerId', 'customerId'],
+        include: [
+          {
+            model: db.User,
+            as: 'customerInfo',
+            attributes: ['id', 'name']
+          }
+        ],
+        raw: true 
+      });
+  
+      console.log(customers);
+      
+      const userId = customers.id;  
+      console.log(`[DEBUG] 查询条件: userId=${userId}`);
+      console.log(`[DEBUG] 关联条件: consultant.role=consultant`);
+
+      const suggestions = await db.Suggestion.findAll({
+        where: { 
+          userId, // 确认使用实际用户ID
+        },
+        include: [
+          {
+            model: db.Questionnaire,
+            attributes: ['id', 'title'],
+            required: true 
+          },
+          {
+            model: db.User,
+            as: 'consultant',
+            attributes: ['id', 'name'],
+            where: { role: 'manager' },
+            required: true
+          }
+        ],
+        order: [['createdAt', 'DESC']]
+      });
+
+      console.log(`找到 ${suggestions.length} 条建议记录`); 
+
+      // 添加数据格式化
+      res.json({
+        success: true,
+        data: suggestions.map(s => ({
+          id: s.id,
+          content: s.content,
+          createdAt: s.createdAt,
+          questionnaire: {
+            id: s.Questionnaire.id,
+            title: s.Questionnaire.title
+          },
+          consultant: {
+            id: s.consultant.id,
+            name: s.consultant.name
+          }
+        }))
+      });
+    } catch (error) {
+      console.error('[ERROR] Failed to get user suggestions:', error);
+      res.status(500).json({
+        success: false,
+        error: '获取建议失败，请检查数据库连接'
+      });
+    }
+  },
+  async getQuestionnaireSuggestions(req, res) {
+    try {
+      const userId = req.user.id;
+      const { questionnaireId } = req.params;
+
+      const suggestions = await db.Suggestion.findAll({
+        where: {
+          userId,
+          questionnaireId
+        },
+        include: [{
+          model: db.User,
+          as: 'consultant',
+          attributes: ['id', 'name']
+        }],
+        order: [['createdAt', 'DESC']]
+      });
+
+      res.json({
+        success: true,
+        data: suggestions
+      });
+    } catch (error) {
+      console.error('[ERROR] Failed to get questionnaire suggestions:', error);
+      res.status(500).json({
+        success: false,
+        error: 'Failed to retrieve suggestions'
+      });
+    }
+  }
 };

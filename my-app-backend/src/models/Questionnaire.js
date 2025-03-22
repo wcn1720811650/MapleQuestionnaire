@@ -34,6 +34,8 @@ module.exports = (sequelize, DataTypes) => {
   }, {
     tableName: 'questionnaires',
     timestamps: true,
+    paranoid: true,
+    deletedAt: 'deletedAt',
   });
 
   Questionnaire.associate = (models) => {

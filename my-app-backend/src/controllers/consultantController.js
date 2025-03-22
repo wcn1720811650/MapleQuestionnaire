@@ -201,7 +201,7 @@ exports.getSubmissionDetails = async (req, res) => {
     }
   };
 
-  exports.createSuggestion = async (req, res) => {
+exports.createSuggestion = async (req, res) => {
   try {
     const { userId, questionnaireId } = req.params;
     const { suggestion } = req.body;
@@ -257,6 +257,46 @@ exports.getSubmissionDetails = async (req, res) => {
     res.status(500).json({
       success: false,
       error: 'Failed to save treatment suggestion'
+    });
+  }
+};
+
+exports.getSuggestions = async (req, res) => {
+  try {
+    const userId = req.user.id; 
+
+    const suggestions = await db.Suggestion.findAll({
+      where: { userId }, 
+      include: [
+        {
+          model: db.Questionnaire,
+          attributes: ['title']
+        },
+        {
+          model: db.User,
+          as: 'consultant',
+          attributes: ['name']
+        }
+      ],
+      order: [['createdAt', 'DESC']]
+    });
+
+    res.json({
+      success: true,
+      data: suggestions.map(s => ({
+        id: s.id,
+        content: s.content,
+        createdAt: s.createdAt,
+        questionnaire: s.Questionnaire.title,
+        consultant: s.consultant.name
+      }))
+    });
+  } catch (error) {
+    console.error('[ERROR] Failed to get suggestions:', error);
+    res.status(500).json({ 
+      success: false,
+      error: 'Failed to retrieve suggestions',
+      details: process.env.NODE_ENV === 'development' ? error.message : null
     });
   }
 };

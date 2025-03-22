@@ -253,7 +253,21 @@ exports.getQuestionnaireById = async (req, res) => {
 exports.submitAnswers = async (req, res) => {
   const questionnaireId = req.params.id; 
   const { answers } = req.body;
-  const userId = req.user.id; 
+  
+  const id = req.user.id;
+  const customers = await db.Customer.findOne({
+    where:{customerId: id},
+    attributes: ['id', 'ownerId', 'customerId'],
+    include: [
+      {
+        model: db.User,
+        as: 'customerInfo',
+        attributes: ['id', 'name']
+      }
+    ],
+    raw: true 
+  });
+  const userId = customers.id; 
 
   try {
     const questionnaire = await db.Questionnaire.findByPk(questionnaireId, {

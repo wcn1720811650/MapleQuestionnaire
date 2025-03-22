@@ -4,7 +4,7 @@ const authMiddleware = require('../middleware/authMiddleware');
 const {
   getGroupSubmissions,
   getSubmissionDetails,
-  createSuggestion
+  createSuggestion,
   
 } = require('../controllers/consultantController');
 
@@ -14,4 +14,5 @@ router.get('/',authMiddleware,getGroupSubmissions);
 router.get('/submissions/:userId/:questionnaireId',authMiddleware,getSubmissionDetails);
 router.get('/:userId/:questionnaireId',authMiddleware,getSubmissionDetails);
 router.post('/submissions/:userId/:questionnaireId/suggestions', authMiddleware, createSuggestion);
+
 module.exports = router;

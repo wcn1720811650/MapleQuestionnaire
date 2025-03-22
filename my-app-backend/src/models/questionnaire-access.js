@@ -9,6 +9,10 @@ module.exports = (sequelize, DataTypes) => {
       questionnaireId: {
         type: DataTypes.INTEGER,
         allowNull: false,
+        references: {
+          model: 'questionnaires',
+          key: 'id',
+        },
       },
       expiresAt: {
         type: DataTypes.DATE, 
@@ -20,7 +24,9 @@ module.exports = (sequelize, DataTypes) => {
       }
     }, {
       tableName: 'questionnaire_access',
+      paranoid: true,
       timestamps: true,
+      deletedAt: 'deletedAt',
     });
   
     QuestionnaireAccess.associate = (models) => {
