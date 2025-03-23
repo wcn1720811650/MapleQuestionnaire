@@ -140,9 +140,23 @@ module.exports = {
   },
   async getUserSuggestions(req, res) {
     const id = req.user.id;
+    const customer = await db.Customer.findOne({
+      where:{customerId: id},
+      attributes: ['id', 'ownerId', 'customerId'],
+      include: [
+        {
+          model: db.User,
+          as: 'customerInfo',
+          attributes: ['id', 'name']
+        }
+      ],
+      raw: true 
+    });
+    console.log(customer);
+    
     try {
       const customers = await db.Customer.findOne({
-        where:{customerId: id},
+        where:{customerId: customer.customerId},
         attributes: ['id', 'ownerId', 'customerId'],
         include: [
           {
@@ -152,17 +166,12 @@ module.exports = {
           }
         ],
         raw: true 
-      });
-  
-      console.log(customers);
-      
-      const userId = customers.id;  
-      console.log(`[DEBUG] 查询条件: userId=${userId}`);
-      console.log(`[DEBUG] 关联条件: consultant.role=consultant`);
+      });      
+      const userId = customers.customerId;  
 
       const suggestions = await db.Suggestion.findAll({
         where: { 
-          userId, // 确认使用实际用户ID
+          userId, 
         },
         include: [
           {
@@ -180,10 +189,6 @@ module.exports = {
         ],
         order: [['createdAt', 'DESC']]
       });
-
-      console.log(`找到 ${suggestions.length} 条建议记录`); 
-
-      // 添加数据格式化
       res.json({
         success: true,
         data: suggestions.map(s => ({
@@ -204,7 +209,7 @@ module.exports = {
       console.error('[ERROR] Failed to get user suggestions:', error);
       res.status(500).json({
         success: false,
-        error: '获取建议失败，请检查数据库连接'
+        error: 'Failed to obtain suggestions, please check the database connection'
       });
     }
   },

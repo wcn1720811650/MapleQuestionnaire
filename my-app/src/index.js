@@ -10,6 +10,7 @@ import QuestionnaireQuiz from "./component/questionnaire/QuestionnaireQuiz"
 import ConsultantDashboard from "./pages/ConsultantDashboard";
 import SubmissionDetails from "./pages/SubmissionDetails";
 import UserSuggestions from "./pages/UserSuggestions";
+import ConsultantSuggestions from "./pages/ConsultantSuggestions";
 
 const App = () => {
   return (
@@ -23,6 +24,8 @@ const App = () => {
           <Route path="/submissions" element={<ConsultantDashboard/>} />
           <Route path="/submissions/:userId/:questionnaireId" element={<SubmissionDetails/>} />
           <Route path="/user/suggestions" element={<UserSuggestions />} />
+          <Route path="/consultantSuggestions" element={<ConsultantSuggestions />} />
+
         </Routes>
       </BrowserRouter>
     </ThemeProvider>

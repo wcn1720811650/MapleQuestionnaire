@@ -153,16 +153,17 @@ exports.publishQuestionnaire = async (req, res) => {
           model: db.Customer,
           as: 'customers', 
           through: db.GroupCustomer,
-          attributes: ['id'], 
+          attributes: ['id','customerId'], 
         },
       ],
     });    
-
+    
     const memberUserIds = validGroups.flatMap(group =>
-      group.customers?.map(customer => customer.id) || []
+      group.customers?.map(customer => customer.customerId) || []
     );
+    
     const uniqueMembers = Array.from(new Set(memberUserIds));
-
+    
     if (uniqueMembers.length === 0) {
       return res.status(400).json({ error: 'There are no valid members in the selected group' });
     }
@@ -178,10 +179,10 @@ exports.publishQuestionnaire = async (req, res) => {
         questionnaireId,
         expiresAt: null,
       }));
+      console.log(accessRecords);
+      
 
       await db.QuestionnaireAccess.bulkCreate(accessRecords, { transaction: t });
-
-
     });
     
     res.status(201).json({
@@ -267,8 +268,9 @@ exports.submitAnswers = async (req, res) => {
     ],
     raw: true 
   });
-  const userId = customers.id; 
-
+  
+  const userId = customers.customerId; 
+  
   try {
     const questionnaire = await db.Questionnaire.findByPk(questionnaireId, {
       include: [{
@@ -279,6 +281,7 @@ exports.submitAnswers = async (req, res) => {
       }],
       attributes: { exclude: ['isDeleted', 'isPublic'] },
     });
+    
 
     if (!questionnaire) {
       return res.status(403).json({ error: 'You are not authorized to submit this questionnaire' });

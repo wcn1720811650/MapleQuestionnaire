@@ -10,21 +10,19 @@ export default function UserSuggestions() {
   useEffect(() => {
     const fetchSuggestions = async () => {
       try {
-        // 修改API路径，确保与后端路由匹配
         const response = await axios.get('/api/suggestions', {
           headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
         });
         
         console.log('API Response:', response.data);
         
-        // Handle different response structures
         if (response.data.success) {
           setSuggestions(response.data.data || []);
         } else {
           setError('Failed to load suggestions');
         }
       } catch (err) {
-        console.error('获取建议失败:', err);
+        console.error('Failed to get suggestions:', err);
         setError(err.response?.data?.error || 'Error loading suggestions');
       } finally {
         setLoading(false);
@@ -37,7 +35,7 @@ export default function UserSuggestions() {
   return (
     <Box sx={{ p: 3, maxWidth: 800, mx: 'auto' }}>
       <Typography variant="h4" gutterBottom sx={{ mb: 3, fontWeight: 500 }}>
-        我的咨询建议
+        My consulting advice
       </Typography>
       
       {error && (
@@ -57,7 +55,7 @@ export default function UserSuggestions() {
               {suggestion.questionnaire?.title || 'Untitled Questionnaire'}
             </Typography>
             <Typography variant="subtitle2" color="textSecondary" sx={{ mb: 2 }}>
-              咨询师: {suggestion.consultant?.name || 'Unknown'} | 
+              Consultant: {suggestion.consultant?.name || 'Unknown'} | 
               {new Date(suggestion.createdAt).toLocaleDateString()}
             </Typography>
             <Divider sx={{ my: 1 }} />
@@ -75,7 +73,7 @@ export default function UserSuggestions() {
       ) : (
         <Paper sx={{ p: 4, textAlign: 'center', bgcolor: '#f9f9f9', borderRadius: 2 }}>
           <Typography variant="body1" color="textSecondary">
-            暂无咨询建议。当咨询师为您提供建议后，将会显示在这里。
+            There are no consulting suggestions yet. When a consultant provides you with a suggestion, it will be displayed here.
           </Typography>
         </Paper>
       )}

@@ -27,7 +27,7 @@ const Report = () => {
               }
             }}
             endIcon={<ChevronRightRounded />}
-            onClick={() => navigate('/user/suggestions')}
+            onClick={() => navigate('/consultantSuggestions')}
           >
             View Suggestions
           </Button>

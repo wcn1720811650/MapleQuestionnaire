@@ -33,6 +33,7 @@ import Chatbot from '../component/Chatbot';
 import CreateGroup from '../component/management/group/createGroup';
 import UserQuestionnaire from '../component/questionnaire/UserQuestionnaires'
 import QuestionnaireQuiz from "../component/questionnaire/QuestionnaireQuiz"
+import MySuggestions from '../component/management/MySuggestions';
 
 export default function DashboardLayoutBasic() {
 
@@ -117,7 +118,13 @@ const NAVIGATION = [
     title: 'My Groups',
     icon: <GroupIcon />,
   },
+  {
+    segment:'mySuggestions',
+    title: 'My Suggestions',
+    icon: <BarChartIcon />,
+  },
   ]: []),
+  ...(role === 'user' ? [
   {
     kind: 'header',
     title: 'Analytics',
@@ -127,6 +134,7 @@ const NAVIGATION = [
     title: 'Reports',
     icon: <BarChartIcon />,
   },
+  ]: []),
 ];
 
 const demoTheme = extendTheme({
@@ -374,6 +382,7 @@ function CustomAppTitle() {
           {router.pathname === '/myGroup' && <MyGroup />}
           {router.pathname === '/userQuestionnaires' && <UserQuestionnaire />}
           {router.pathname === '/quiz/:id' && <QuestionnaireQuiz />}
+          {router.pathname === '/mySuggestions' && <MySuggestions />}
 
         </PageContainer>
       </DashboardLayout>

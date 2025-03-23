@@ -17,13 +17,13 @@ exports.getGroupSubmissions = async (req, res) => {
           attributes: ['name']
         }]
       }]
-    });
+    });    
 
     const result = await Promise.all(groups.map(async (group) => {
       const submissions = await db.UserAnswer.findAll({
         where: {
           userId: {
-            [Op.in]: group.customers.map(c => c.id)
+            [Op.in]: group.customers.map(c => c.customerId)
           }
         },
         include: [{
@@ -35,14 +35,15 @@ exports.getGroupSubmissions = async (req, res) => {
         attributes: ['questionnaireId', 'userId', 'createdAt']
       });
 
+      
       return {
         groupId: group.id,
         groupName: group.name,
         members: group.customers.map(customer => ({
-          userId: customer.id,
+          userId: customer.customerId,
           userName: customer.customerInfo?.name,
           submissions: submissions
-            .filter(s => s.userId === customer.id && s.questionnaire)
+            .filter(s => s.userId === customer.customerId && s.questionnaire)
             .map(s => ({
               questionnaireId: s.questionnaire.id,
               title: s.questionnaire.title, 
@@ -61,15 +62,28 @@ exports.getGroupSubmissions = async (req, res) => {
 
 exports.getSubmissionDetails = async (req, res) => {
     const { userId, questionnaireId } = req.params;
+    console.log(userId);
+    
     const consultantId = req.user.id; 
-
+    const customers = await db.Customer.findOne({
+      where:{customerId: userId},
+      attributes: ['id', 'ownerId', 'customerId'],
+      include: [
+        {
+          model: db.User,
+          as: 'customerInfo',
+          attributes: ['id', 'name']
+        }
+      ],
+      raw: true 
+    });
     try {
       const validAccess = await db.Group.findOne({
         where: { userId: consultantId }, 
         include: [{
           model: db.Customer,
           as: 'customers',
-          where: { id: userId },
+          where: { id: customers.id },
           required: true,
           through: { attributes: [] },
           include: [{ 
@@ -206,13 +220,24 @@ exports.createSuggestion = async (req, res) => {
     const { userId, questionnaireId } = req.params;
     const { suggestion } = req.body;
     const consultantId = req.user.id;
-
+    const customers = await db.Customer.findOne({
+      where:{customerId: userId},
+      attributes: ['id', 'ownerId', 'customerId'],
+      include: [
+        {
+          model: db.User,
+          as: 'customerInfo',
+          attributes: ['id', 'name']
+        }
+      ],
+      raw: true 
+    });
     const validAccess = await db.Group.findOne({
       where: { userId: consultantId },
       include: [{
         model: db.Customer,
         as: 'customers',
-        where: { id: userId },
+        where: { id: customers.id },
         required: true,
         through: { attributes: [] }
       }]
@@ -294,6 +319,53 @@ exports.getSuggestions = async (req, res) => {
   } catch (error) {
     console.error('[ERROR] Failed to get suggestions:', error);
     res.status(500).json({ 
+      success: false,
+      error: 'Failed to retrieve suggestions',
+      details: process.env.NODE_ENV === 'development' ? error.message : null
+    });
+  }
+};
+
+exports.getConsultantSuggestions = async (req, res) => {
+  const consultantId = req.user.id;
+
+  try {
+    const suggestions = await db.Suggestion.findAll({
+      where: { consultantId },
+      include: [
+        {
+          model: db.Questionnaire,
+          attributes: ['id', 'title']
+        },
+        {
+          model: db.User,
+          as: 'customer',
+          attributes: ['id', 'name']
+        }
+      ],
+      order: [['createdAt', 'DESC']]
+    });
+
+    res.status(200).json({
+      success: true,
+      data: suggestions.map(s => ({
+        id: s.id,
+        content: s.content,
+        createdAt: s.createdAt,
+        questionnaire: {
+          id: s.Questionnaire.id,
+          title: s.Questionnaire.title
+        },
+        user: {
+          id: s.customer.id,
+          name: s.customer.name
+        }
+      }))
+    });
+
+  } catch (error) {
+    console.error('[ERROR] Failed to get consultant suggestions:', error);
+    res.status(500).json({
       success: false,
       error: 'Failed to retrieve suggestions',
       details: process.env.NODE_ENV === 'development' ? error.message : null
