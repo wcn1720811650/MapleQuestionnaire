@@ -2,9 +2,10 @@ const express = require('express');
 const router = express.Router();
 const authMiddleware = require('../middleware/authMiddleware');
 const { handleChatMessage } = require('../controllers/chatController');
+const { generatePsychologicalAdvice } = require('../controllers/chatController');
 const { Message } = require('../models'); 
 router.post('/chat', authMiddleware, handleChatMessage);
-
+router.post('/advice/:userAnswerId', authMiddleware, generatePsychologicalAdvice);
 router.get('/messages', authMiddleware, async (req, res) => {
     try {
       const { page = 1, limit = 50, userId } = req.query;
