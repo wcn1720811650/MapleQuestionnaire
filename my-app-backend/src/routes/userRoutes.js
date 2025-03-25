@@ -10,5 +10,5 @@ router.delete('/my-customers/:customerId', authMiddleware, userController.delete
 
 router.get('/suggestions', authMiddleware, userController.getUserSuggestions);
 router.get('/questionnaires/:questionnaireId/suggestions', authMiddleware, userController.getQuestionnaireSuggestions);
-
+router.get('/user/answers', authMiddleware, userController.getMyAnswers);
 module.exports = router;

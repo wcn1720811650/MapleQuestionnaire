@@ -11,7 +11,7 @@ import ConsultantDashboard from "./pages/ConsultantDashboard";
 import SubmissionDetails from "./pages/SubmissionDetails";
 import UserSuggestions from "./pages/UserSuggestions";
 import ConsultantSuggestions from "./pages/ConsultantSuggestions";
-
+import MyAnswers from "./pages/MyAnswers";
 const App = () => {
   return (
     <ThemeProvider theme={theme}>
@@ -25,7 +25,7 @@ const App = () => {
           <Route path="/submissions/:userId/:questionnaireId" element={<SubmissionDetails/>} />
           <Route path="/user/suggestions" element={<UserSuggestions />} />
           <Route path="/consultantSuggestions" element={<ConsultantSuggestions />} />
-
+          <Route path="/my-answers" element={<MyAnswers />} />
         </Routes>
       </BrowserRouter>
     </ThemeProvider>

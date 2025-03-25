@@ -242,5 +242,48 @@ module.exports = {
         error: 'Failed to retrieve suggestions'
       });
     }
+  },
+  async getMyAnswers(req, res) {
+    try {
+      const id = req.user.id;
+      const customer = await db.Customer.findOne({
+        where:{customerId: id},
+        attributes: ['id', 'ownerId', 'customerId'],
+        include: [
+          {
+            model: db.User,
+            as: 'customerInfo',
+            attributes: ['id', 'name']
+          }
+        ],
+        raw: true 
+      });
+      const userId = customer.customerId
+      const answers = await db.UserAnswer.findAll({
+        where: { userId },
+        include: [
+          {
+            model: db.Questionnaire,
+            as: 'questionnaire',
+            attributes: ['id', 'title']
+          }
+        ],
+        order: [['createdAt', 'DESC']]
+      });
+  
+      res.json({
+        success: true,
+        data: answers.map(answer => ({
+          id: answer.id,
+          questionnaireId: answer.questionnaireId,
+          questionnaireTitle: answer.questionnaire.title,
+          answer: answer.answer,
+          createdAt: answer.createdAt
+        }))
+      });
+    } catch (error) {
+      console.error('Get my answers error:', error);
+      res.status(500).json({ error: 'Failed to get user answers' });
+    }
   }
 };
