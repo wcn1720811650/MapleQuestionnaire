@@ -61,7 +61,7 @@ export default function ConsultantSuggestions() {
         flexDirection: 'row',
         justifyContent: 'space-between'
       }}>
-        <Box>
+        <Box sx={{ display: 'flex', alignItems:'center'}}>
             <Lightbulb fontSize="large" color="primary" />
             My Suggestions
         </Box>
