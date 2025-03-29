@@ -7,7 +7,7 @@ import {
   Button, 
   CircularProgress,
 } from '@mui/material';
-import { ArrowBack, Lightbulb } from '@mui/icons-material';
+import { ArrowBack, Lightbulb, Print } from '@mui/icons-material';
 import axios from 'axios';
 
 const AIPsychologicalAdvice = () => {
@@ -144,6 +144,7 @@ const AIPsychologicalAdvice = () => {
             }}>
               <Button 
                 variant="contained" 
+                startIcon={<Print />}
                 color="primary"
                 onClick={() => window.print()}
                 sx={{
