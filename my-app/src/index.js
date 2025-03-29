@@ -12,6 +12,7 @@ import SubmissionDetails from "./pages/SubmissionDetails";
 import UserSuggestions from "./pages/UserSuggestions";
 import ConsultantSuggestions from "./pages/ConsultantSuggestions";
 import MyAnswers from "./pages/MyAnswers";
+import AIPsychologicalAdvice from "./pages/AIPsychologicalAdvice";
 const App = () => {
   return (
     <ThemeProvider theme={theme}>
@@ -26,6 +27,7 @@ const App = () => {
           <Route path="/user/suggestions" element={<UserSuggestions />} />
           <Route path="/consultantSuggestions" element={<ConsultantSuggestions />} />
           <Route path="/my-answers" element={<MyAnswers />} />
+          <Route path="/ai-psychological-advice/:answerId" element={<AIPsychologicalAdvice />} />
         </Routes>
       </BrowserRouter>
     </ThemeProvider>

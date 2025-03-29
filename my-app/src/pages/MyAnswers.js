@@ -5,6 +5,7 @@ import { useTheme, Avatar, Chip, Stack } from '@mui/material';
 import { Task, CalendarToday, CheckCircle } from '@mui/icons-material';
 import { ArrowBack } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
+import { Lightbulb } from '@mui/icons-material';
 
 const MyAnswers = () => {
   const theme = useTheme();
@@ -38,6 +39,10 @@ const MyAnswers = () => {
       </Box>
     );
   }
+
+  const handleGenerateAdvice = (answerId) => {
+    navigate(`/ai-psychological-advice/${answerId}`);
+  };
 
   return (
     <Box sx={{ p: 4, maxWidth: 800, mx: 'auto' }}>
@@ -86,6 +91,7 @@ const MyAnswers = () => {
               }
             }}
           >
+            <Box sx={{ display:'flex', flexDirection:'row', justifyContent:'space-between' }}>
             <Stack direction="row" spacing={2} alignItems="center" sx={{ mb: 2 }}>
               <Avatar sx={{ bgcolor: theme.palette.primary.main }}>
                 <Task />
@@ -102,7 +108,26 @@ const MyAnswers = () => {
                 />
               </Box>
             </Stack>
-            
+            <Box>
+            <Button
+              variant="outlined"
+              startIcon={<Lightbulb />}
+              onClick={() => handleGenerateAdvice(answer.id)}
+              sx={{
+                textTransform: 'none',
+                color: theme.palette.primary.main,
+                borderColor: theme.palette.primary.main,
+                '&:hover': {
+                  backgroundColor: theme.palette.primary.light,
+                  borderColor: theme.palette.primary.main
+                }
+              }}
+            >
+              Get AI psychological advice
+            </Button>
+            </Box>
+            </Box>
+
             <Divider sx={{ my: 1 }} />
             
               <Typography variant="body1" sx={{ 
