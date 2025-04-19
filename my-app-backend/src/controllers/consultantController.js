@@ -32,9 +32,19 @@ exports.getGroupSubmissions = async (req, res) => {
           attributes: ['id', 'title'],
           required: true
         }],
-        attributes: ['questionnaireId', 'userId', 'createdAt']
+        attributes: ['questionnaireId', 'userId', 'createdAt'],
+        group: ['questionnaireId', 'userId'],
+        order: [['createdAt', 'DESC']]
       });
 
+      // Use Map to remove duplicates
+      const uniqueSubmissions = new Map();
+      submissions.forEach(sub => {
+        const key = `${sub.userId}_${sub.questionnaireId}`;
+        if (!uniqueSubmissions.has(key)) {
+          uniqueSubmissions.set(key, sub);
+        }
+      });
       
       return {
         groupId: group.id,
@@ -42,7 +52,7 @@ exports.getGroupSubmissions = async (req, res) => {
         members: group.customers.map(customer => ({
           userId: customer.customerId,
           userName: customer.customerInfo?.name,
-          submissions: submissions
+          submissions: Array.from(uniqueSubmissions.values())
             .filter(s => s.userId === customer.customerId && s.questionnaire)
             .map(s => ({
               questionnaireId: s.questionnaire.id,

@@ -258,28 +258,59 @@ module.exports = {
         ],
         raw: true 
       });
-      const userId = customer.customerId
-      const answers = await db.UserAnswer.findAll({
+      const userId = customer.customerId;
+  
+      const allAnswers = await db.UserAnswer.findAll({
         where: { userId },
         include: [
           {
             model: db.Questionnaire,
             as: 'questionnaire',
-            attributes: ['id', 'title']
+            attributes: ['id', 'title', 'questions'] 
           }
         ],
-        order: [['createdAt', 'DESC']]
+        order: [
+          ['questionnaireId', 'ASC'],
+          ['createdAt', 'DESC']
+        ]
       });
+  
+      const groupedAnswers = allAnswers.reduce((acc, answer) => {
+        const key = answer.questionnaireId;
+        if (!acc[key]) {
+          let questions = [];
+          try {
+            questions = typeof answer.questionnaire.questions === 'string' 
+              ? JSON.parse(answer.questionnaire.questions)
+              : answer.questionnaire.questions;
+          } catch (e) {
+            console.error('Failed to parse questions:', e);
+          }
+  
+          acc[key] = {
+            questionnaireId: answer.questionnaireId,
+            questionnaireTitle: answer.questionnaire.title,
+            questions: questions, 
+            answers: []
+          };
+        }
+        
+        const question = acc[key].questions.find(q => q.id === answer.questionId) || 
+                        { id: answer.questionId, text: 'Unknown question' };
+  
+        acc[key].answers.push({
+          id: answer.id,
+          questionId: answer.questionId,
+          questionText: question.text, 
+          answer: answer.answer,
+          createdAt: answer.createdAt
+        });
+        return acc;
+      }, {});
   
       res.json({
         success: true,
-        data: answers.map(answer => ({
-          id: answer.id,
-          questionnaireId: answer.questionnaireId,
-          questionnaireTitle: answer.questionnaire.title,
-          answer: answer.answer,
-          createdAt: answer.createdAt
-        }))
+        data: Object.values(groupedAnswers)
       });
     } catch (error) {
       console.error('Get my answers error:', error);

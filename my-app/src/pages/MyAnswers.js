@@ -40,8 +40,8 @@ const MyAnswers = () => {
     );
   }
 
-  const handleGenerateAdvice = (answerId) => {
-    navigate(`/ai-psychological-advice/${answerId}`);
+  const handleGenerateAdvice = (userAnswerId) => {
+    navigate(`/ai-psychological-advice/${userAnswerId}`);
   };
 
   return (
@@ -76,14 +76,15 @@ const MyAnswers = () => {
       </Box>
       
       <List>
-        {answers.map(answer => (
+        {answers.map(group => (
           <Paper 
-            key={answer.id} 
+            key={group.questionnaireId} 
             sx={{ 
               mb: 3, 
               p: 3,
               borderRadius: 4,
               transition: 'transform 0.3s, box-shadow 0.3s',
+              position: 'relative', 
               '&:hover': {
                 transform: 'translateY(-5px)',
                 boxShadow: 6,
@@ -91,64 +92,66 @@ const MyAnswers = () => {
               }
             }}
           >
-            <Box sx={{ display:'flex', flexDirection:'row', justifyContent:'space-between' }}>
+            <Box sx={{display:'flex',flexDirection:'row', alignItems:'center',justifyContent:'space-between'}}>
             <Stack direction="row" spacing={2} alignItems="center" sx={{ mb: 2 }}>
               <Avatar sx={{ bgcolor: theme.palette.primary.main }}>
                 <Task />
               </Avatar>
               <Box>
                 <Typography variant="h6" sx={{ fontWeight: 500 }}>
-                  {answer.questionnaireTitle}
+                  {group.questionnaireTitle}
                 </Typography>
                 <Chip 
-                  label={`Answer status: Completed`}
+                  label={`${group.answers.length} answers`}
                   size="small"
-                  color="success"
+                  color="info"
                   sx={{ mt: 0.5 }}
                 />
               </Box>
             </Stack>
-            <Box>
             <Button
               variant="outlined"
+              size="small"
               startIcon={<Lightbulb />}
-              onClick={() => handleGenerateAdvice(answer.id)}
+              onClick={() => handleGenerateAdvice(group.answers[0].id)} 
               sx={{
                 textTransform: 'none',
                 color: theme.palette.primary.main,
-                borderColor: theme.palette.primary.main,
-                '&:hover': {
-                  backgroundColor: theme.palette.primary.light,
-                  borderColor: theme.palette.primary.main
-                }
+                bottom: 8,
+                right: 16
               }}
             >
-              Get AI psychological advice
+              Get Advice
             </Button>
             </Box>
-            </Box>
-
             <Divider sx={{ my: 1 }} />
-            
-              <Typography variant="body1" sx={{ 
-                whiteSpace: 'pre-wrap',
-                p: 2,
-                bgcolor: '#f5f5f5',
-                borderRadius: 1,
-                mt: 2,
-                fontStyle: 'italic'
-              }}>
-                {answer.answer}
-              </Typography>
-            
-            <Stack direction="row" spacing={2} sx={{ mt: 2 }}>
-              <Chip
-                label={`${new Date(answer.createdAt).toLocaleString()}`}
-                size="small"
-                icon={<CalendarToday fontSize="small" />}
-                variant="outlined"
-              />
-            </Stack>
+
+            {group.answers.map((answer, index) => (
+              <Box key={answer.id} sx={{ mb: 3, pt: 2 }}>
+                <Typography variant="subtitle2" color="text.secondary">
+                  {`Question${index + 1}: `+answer.questionText || `Answer #${index + 1}`}
+                </Typography>
+                <Typography variant="body1" sx={{ 
+                  whiteSpace: 'pre-wrap',
+                  p: 2,
+                  bgcolor: '#f5f5f5',
+                  borderRadius: 1,
+                  mt: 1,
+                  fontStyle: 'italic'
+                }}>
+                  {answer.answer}
+                </Typography>
+                <Stack direction="row" spacing={2} sx={{ mt: 1 }}>
+                  <Chip
+                    label={`${new Date(answer.createdAt).toLocaleString()}`}
+                    size="small"
+                    icon={<CalendarToday fontSize="small" />}
+                    variant="outlined"
+                  />
+                </Stack>
+                {index < group.answers.length - 1 && <Divider sx={{ my: 2 }} />}
+              </Box>
+            ))}
           </Paper>
         ))}
       </List>

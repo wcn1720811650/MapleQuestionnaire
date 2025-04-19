@@ -13,7 +13,11 @@ import axios from 'axios';
 const AIPsychologicalAdvice = () => {
   const { answerId } = useParams();
   const navigate = useNavigate();
-  const [advice, setAdvice] = useState(null);
+  const [adviceData, setAdviceData] = useState({
+    advice: null,
+    questionnaireTitle: '',
+    qaPairs: []
+  });
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -22,11 +26,26 @@ const AIPsychologicalAdvice = () => {
         const response = await axios.get(`/api/AIadvice/${answerId}`, {
           headers: {
             Authorization: `Bearer ${localStorage.getItem('token')}`
-          }
+          },
+          timeout: 30000 
         });
-        setAdvice(response.data.data.advice);
+        
+        if (!response.data || !response.data.data) {
+          throw new Error('Invalid response structure');
+        }
+
+        setAdviceData({
+          advice: response.data.data.advice,
+          questionnaireTitle: response.data.data.questionnaireTitle || 'Questionnaire',
+          qaPairs: response.data.data.qaPairs || []
+        });
       } catch (error) {
         console.error('Failed to fetch advice:', error);
+        setAdviceData({
+          advice: 'Failed to load advice. Please try again later.',
+          questionnaireTitle: 'Error',
+          qaPairs: []
+        });
       } finally {
         setLoading(false);
       }
@@ -92,7 +111,7 @@ const AIPsychologicalAdvice = () => {
                 mb: 0.5
               }}
             >
-              AI psychological advice
+              {adviceData.questionnaireTitle} - AI Advice
             </Typography>
             <Typography variant="body2" color="text.secondary">
                 Personalized recommendations based on your survey answers
@@ -100,20 +119,26 @@ const AIPsychologicalAdvice = () => {
           </Box>
         </Box>
         
-        {loading ? (
-          <Box sx={{ 
-            display: 'flex', 
-            flexDirection: 'column',
-            alignItems: 'center', 
-            py: 4
-          }}>
-            <CircularProgress size={50} sx={{ mb: 2 }}/>
-            <Typography variant="body2" color="text.secondary">
-                Generating suggestions for you...
-            </Typography>
-          </Box>
-        ) : (
+        {!loading && (
           <>
+            {/* 显示问答对 */}
+            {adviceData.qaPairs.length > 0 && (
+              <Box sx={{ mb: 4 }}>
+                <Typography variant="h6" sx={{ mb: 2 }}>Your Answers</Typography>
+                {adviceData.qaPairs.map((pair, index) => (
+                  <Box key={index} sx={{ mb: 2 }}>
+                    <Typography variant="subtitle1" sx={{ fontWeight: 500 }}>
+                      Q: {pair.question}
+                    </Typography>
+                    <Typography variant="body1" sx={{ ml: 2, mb: 2 }}>
+                      A: {pair.answer}
+                    </Typography>
+                  </Box>
+                ))}
+              </Box>
+            )}
+
+            {/* 显示AI建议 */}
             <Box sx={{
               p: 2,
               mb: 3,
@@ -130,7 +155,7 @@ const AIPsychologicalAdvice = () => {
                   fontSize: '1rem'
                 }}
               >
-                {advice || 'Failed to obtain suggested content'}
+                {adviceData.advice || 'Failed to obtain suggested content'}
               </Typography>
             </Box>
             

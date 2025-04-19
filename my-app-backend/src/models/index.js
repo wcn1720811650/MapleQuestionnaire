@@ -4,7 +4,6 @@ const Sequelize = require('sequelize');
 const sequelize = require('../config/database'); 
 const db = {};
 
-
 fs.readdirSync(__dirname)
   .filter((file) => file !== 'index.js') 
   .forEach((file) => {

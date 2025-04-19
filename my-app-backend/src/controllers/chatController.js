@@ -55,22 +55,9 @@ exports.handleChatMessage = async (req, res) => {
 exports.generatePsychologicalAdvice = async (req, res) => {
   try {
     const { userAnswerId } = req.params;
-    
-    const id = req.user.id;
-    const customer = await db.Customer.findOne({
-      where:{customerId: id},
-      attributes: ['id', 'ownerId', 'customerId'],
-      include: [
-        {
-          model: db.User,
-          as: 'customerInfo',
-          attributes: ['id', 'name']
-        }
-      ],
-      raw: true 
-    });
-    const userId = customer.customerId;
-  
+    const userId = req.user.id;
+
+    // Check for existing advice
     const existingAdvice = await db.PsychologicalAdvice.findOne({
       where: { userAnswerId, userId }
     });
@@ -83,15 +70,14 @@ exports.generatePsychologicalAdvice = async (req, res) => {
       });
     }
 
+    // Get user answer with questionnaire info
     const userAnswer = await db.UserAnswer.findOne({
       where: { id: userAnswerId, userId },
-      include: [
-        { 
-          model: db.Questionnaire,
-          as: 'questionnaire',
-          attributes: ['title']
-        }
-      ]
+      include: [{
+        model: db.Questionnaire,
+        as: 'questionnaire',
+        attributes: ['id', 'title', 'questions']
+      }]
     });
 
     if (!userAnswer) {
@@ -101,11 +87,43 @@ exports.generatePsychologicalAdvice = async (req, res) => {
       });
     }
 
-    const prompt = `User completed a psychological questionnaire. Please provide professional advice.
-Questionnaire Title: ${userAnswer.questionnaire.title}
-User Answers: ${JSON.stringify(userAnswer.answer)}
-Please provide gentle, professional and empathetic advice as a psychologist. 
-Sign the advice as "MapleAI" at the end.`;
+    // Get all answers for this questionnaire
+    const allAnswers = await db.UserAnswer.findAll({
+      where: { 
+        userId,
+        questionnaireId: userAnswer.questionnaireId 
+      },
+      order: [['createdAt', 'ASC']]
+    });
+
+    // Parse questions
+    let questions = [];
+    try {
+      questions = typeof userAnswer.questionnaire.questions === 'string' 
+        ? JSON.parse(userAnswer.questionnaire.questions)
+        : userAnswer.questionnaire.questions;
+    } catch (e) {
+      console.error('Failed to parse questions:', e);
+    }
+
+    // Build Q&A pairs
+    const qaPairs = allAnswers.map(answer => {
+      const question = questions.find(q => q.id === answer.questionId) || 
+                     { id: answer.questionId, text: 'Unknown question' };
+      return {
+        question: question.text,
+        answer: answer.answer
+      };
+    });
+
+    // Generate AI prompt
+    const prompt = `As a professional psychologist, please provide advice based on:
+    
+Questionnaire: ${userAnswer.questionnaire.title}
+Responses:
+${JSON.stringify(qaPairs, null, 2)}
+
+Provide empathetic, professional advice. Conclude with "MapleAI".`;
 
     const response = await axios.post(
       'https://api.deepseek.com/v1/chat/completions',
@@ -114,7 +132,7 @@ Sign the advice as "MapleAI" at the end.`;
         messages: [
           { 
             role: "system", 
-            content: "You are a professional psychologist. Provide advice in a gentle, professional and empathetic manner. Always sign your name as 'MapleAI' at the end of your advice." 
+            content: "You are a psychologist. Provide gentle, professional advice. Sign as 'MapleAI'." 
           },
           { role: "user", content: prompt }
         ],
@@ -133,9 +151,10 @@ Sign the advice as "MapleAI" at the end.`;
 
     const advice = response.data.choices[0].message.content;
 
+    // Save new advice
     await db.PsychologicalAdvice.create({
       userId,
-      userAnswerId: userAnswerId,  
+      userAnswerId,
       content: advice
     });
 
@@ -146,14 +165,13 @@ Sign the advice as "MapleAI" at the end.`;
     });
 
   } catch (error) {
-    console.error('Generate advice error:', {
+    console.error('Advice generation failed:', {
       message: error.message,
-      stack: error.stack,
-      request: req.params
+      stack: error.stack
     });
     res.status(500).json({ 
       success: false,
-      error: 'Failed to generate psychological advice',
+      error: 'Failed to generate advice',
       detail: process.env.NODE_ENV === 'development' ? error.message : undefined
     });
   }
